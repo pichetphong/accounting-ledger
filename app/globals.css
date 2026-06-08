@@ -1,0 +1,120 @@
+@import 'tailwindcss';
+
+@theme {
+  --color-primary: #8b5e3c;
+  --color-primary-strong: #6b4226;
+  --color-secondary: #c4956a;
+  --color-tertiary: #fdf6ec;
+  --color-bg: #fdf6ec;
+  --color-surface: #ffffff;
+  --color-surface-inset: #f0e6d6;
+  --color-surface-hover: #faf0e1;
+  --color-text: #3e2723;
+  --color-text-muted: #6d4c41;
+  --color-text-subtle: #9b8579;
+  --color-divider: #e8ddd0;
+  --color-success: #059669;
+  --color-success-bg: #dcfce7;
+  --color-warning: #d97706;
+  --color-warning-bg: #fef3c7;
+  --color-error: #ef4444;
+  --color-error-bg: #fee2e2;
+  --color-info: #6366f1;
+  --color-info-bg: #ede9fe;
+
+  --font-display: 'DM Serif Display', serif;
+  --font-sans: 'Work Sans', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', monospace;
+
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-full: 9999px;
+
+  /* Neumorphic shadows are intentionally light: alpha-blended so cards feel
+     present on the cream background without stacking into a heavy "shadow wall"
+     when many cards render in a list. Inset stays solid because it signals
+     "you can type here" on input fields. */
+  --shadow-raised: 3px 3px 10px rgba(213, 201, 184, 0.55), -3px -3px 10px rgba(255, 255, 255, 0.55);
+  --shadow-inset: inset 4px 4px 8px #d5c9b8, inset -4px -4px 8px #ffffff;
+  --shadow-raised-sm: 2px 2px 6px rgba(213, 201, 184, 0.5), -2px -2px 6px rgba(255, 255, 255, 0.5);
+  --shadow-focus: 0 0 0 3px rgba(139, 94, 60, 0.25);
+
+  /* Override Tailwind defaults so popover/modal surfaces (shadow-md, shadow-lg)
+     also feel lighter on the cream background. Offset/blur unchanged — they
+     need separation from the backdrop — only alpha is reduced ~30%. */
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.07), 0 2px 4px -2px rgb(0 0 0 / 0.07);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.07), 0 4px 6px -4px rgb(0 0 0 / 0.07);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+html,
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+::selection {
+  background-color: rgba(139, 94, 60, 0.25);
+  color: var(--color-text);
+}
+
+/* Neumorphism only renders correctly on the cream background. */
+.shadow-raised {
+  box-shadow: var(--shadow-raised);
+}
+
+.shadow-raised-sm {
+  box-shadow: var(--shadow-raised-sm);
+}
+
+.shadow-inset {
+  box-shadow: var(--shadow-inset);
+}
+
+.shadow-raised-press:active {
+  box-shadow: var(--shadow-inset);
+}
+
+.font-display {
+  font-family: var(--font-display);
+}
+
+.font-mono {
+  font-family: var(--font-mono);
+}
+
+@keyframes confirm-dialog-backdrop-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes confirm-dialog-surface-in {
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.confirm-dialog-backdrop {
+  animation: confirm-dialog-backdrop-in 160ms ease-out;
+}
+
+.confirm-dialog-surface {
+  animation: confirm-dialog-surface-in 180ms ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .confirm-dialog-backdrop,
+  .confirm-dialog-surface {
+    animation: none;
+  }
+}
