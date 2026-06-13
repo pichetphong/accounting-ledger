@@ -118,3 +118,28 @@ body {
     animation: none;
   }
 }
+
+/* air-datepicker theme. Double class raises specificity so these win over the
+   library defaults regardless of stylesheet load order. */
+.air-datepicker.air-datepicker {
+  --adp-font-family: var(--font-sans);
+  --adp-color: var(--color-text);
+  --adp-color-secondary: var(--color-text-subtle);
+  --adp-accent-color: var(--color-primary);
+  --adp-color-current-date: var(--color-primary);
+  --adp-day-name-color: var(--color-secondary);
+  --adp-background-color: var(--color-surface);
+  --adp-background-color-hover: var(--color-surface-hover);
+  --adp-background-color-active: var(--color-surface-inset);
+  --adp-cell-background-color-selected: var(--color-primary);
+  --adp-cell-background-color-selected-hover: var(--color-primary-strong);
+  --adp-cell-background-color-in-range: var(--color-surface-inset);
+  --adp-cell-background-color-in-range-hover: var(--color-surface-hover);
+  --adp-cell-border-radius: 8px;
+  --adp-border-color: var(--color-divider);
+  --adp-border-color-inner: var(--color-divider);
+  --adp-border-radius: 12px;
+  --adp-btn-color: var(--color-primary);
+  --adp-btn-color-hover: var(--color-primary-strong);
+  box-shadow: var(--shadow-lg);
+}

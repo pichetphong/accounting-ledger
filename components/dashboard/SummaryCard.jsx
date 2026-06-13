@@ -39,12 +39,31 @@ function formatAmount(amount) {
   }).format(value);
 }
 
+// Percent change vs a prior period. `positiveIsGood` flips the colour so a
+// rising expense reads red while rising income reads green.
+function DeltaBadge({ delta, positiveIsGood, label }) {
+  if (delta == null || !Number.isFinite(delta)) return null;
+  const up = delta >= 0;
+  const good = up === positiveIsGood;
+  const color = good ? 'text-[var(--color-success)]' : 'text-[var(--color-error)]';
+  const magnitude = Math.abs(delta);
+  const shown = magnitude >= 1000 ? '999+' : magnitude.toFixed(0);
+  return (
+    <span className={`text-[11px] font-sans font-medium ${color}`}>
+      {up ? '▲' : '▼'} {shown}% {label}
+    </span>
+  );
+}
+
 export default function SummaryCard({
   label,
   amount,
   currency = 'THB',
   tone = 'net',
   size = 'md',
+  delta = null,
+  deltaPositiveIsGood = true,
+  deltaLabel = 'vs last month',
 }) {
   const formatted = formatAmount(amount);
   const sz = SIZE_STYLES[size] ?? SIZE_STYLES.md;
@@ -68,6 +87,7 @@ export default function SummaryCard({
           {currency}
         </span>
       </div>
+      <DeltaBadge delta={delta} positiveIsGood={deltaPositiveIsGood} label={deltaLabel} />
     </Card>
   );
 }

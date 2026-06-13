@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
+import DatePicker from '@/components/ui/DatePicker';
 import Pill from '@/components/ui/Pill';
 import CategoryPicker from '@/components/entries/CategoryPicker';
 import useConfirm from '@/lib/useConfirm';
@@ -162,12 +163,11 @@ export default function EntryForm({ initialValues = null, mode = 'create' }) {
   return (
     <>
       <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-        <Input
+        <DatePicker
           label="Date"
           name="date"
-          type="date"
           value={date}
-          onChange={(e) => setDate(e.target.value)}
+          onChange={setDate}
           required
         />
 

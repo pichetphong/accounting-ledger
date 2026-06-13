@@ -2,6 +2,8 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import {
+  Area,
+  AreaChart,
   Bar,
   BarChart,
   CartesianGrid,
@@ -12,36 +14,23 @@ import {
 } from 'recharts';
 import Card from '@/components/ui/Card';
 import Pill from '@/components/ui/Pill';
-import { useEntries } from '@/lib/queries/entries';
 import { useDisplayCurrency } from '@/lib/displayCurrency';
 import { getThbToUsdRate, getThbToJpyRate } from '@/lib/fx';
+import { daySpan, fromIso, toIso, startOfDay, addDays } from '@/lib/dateRange';
 
 const MONTH_LABELS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
 const INCOME_COLOR = '#059669';
 const EXPENSE_COLOR = '#EF4444';
+const NET_COLOR = '#8B5E3C';
 
 const COMPACT_THRESHOLD = 1_000_000;
-
-const RANGE_STORAGE_KEY = 'ledger-web:chart-range-v1';
-const DEFAULT_RANGE = '6M';
-const RANGES = ['1W', '1M', '3M', '6M', '1Y'];
-
-const RANGE_HEADING = {
-  '1W': 'Last 1 week',
-  '1M': 'Last 1 month',
-  '3M': 'Last 3 months',
-  '6M': 'Last 6 months',
-  '1Y': 'Last 1 year',
-};
+const VIEW_STORAGE_KEY = 'ledger-web:chart-view-v1';
 
 function formatTick(value) {
   const v = Number.isFinite(value) ? value : 0;
   if (Math.abs(v) >= COMPACT_THRESHOLD) {
-    return new Intl.NumberFormat('en-US', {
-      notation: 'compact',
-      maximumFractionDigits: 1,
-    }).format(v);
+    return new Intl.NumberFormat('en-US', { notation: 'compact', maximumFractionDigits: 1 }).format(v);
   }
   return new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(v);
 }
@@ -49,26 +38,9 @@ function formatTick(value) {
 function formatAmount(value) {
   const v = Number.isFinite(value) ? value : 0;
   if (Math.abs(v) >= COMPACT_THRESHOLD) {
-    return new Intl.NumberFormat('en-US', {
-      notation: 'compact',
-      maximumFractionDigits: 2,
-    }).format(v);
+    return new Intl.NumberFormat('en-US', { notation: 'compact', maximumFractionDigits: 2 }).format(v);
   }
-  return new Intl.NumberFormat('en-US', {
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 2,
-  }).format(v);
-}
-
-function startOfDay(d) {
-  return new Date(d.getFullYear(), d.getMonth(), d.getDate());
-}
-
-function isoDateKey(d) {
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
-  return `${y}-${m}-${day}`;
+  return new Intl.NumberFormat('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 }).format(v);
 }
 
 function shortMonthDay(d) {
@@ -78,178 +50,119 @@ function shortMonthDay(d) {
 // Monday of the ISO week containing the date.
 function isoWeekStart(d) {
   const day = startOfDay(d);
-  const dayOfWeek = day.getDay(); // 0..6 (Sun..Sat)
-  const offset = (dayOfWeek + 6) % 7; // distance back to Monday
+  const offset = (day.getDay() + 6) % 7;
   day.setDate(day.getDate() - offset);
   return day;
 }
 
-function buildDailyBuckets(entries, days) {
-  const now = startOfDay(new Date());
+// Pick bucket granularity from the range length, then lay down empty buckets
+// spanning [from, to] so the axis stays continuous even with gaps in the data.
+function buildBuckets(entries, fromStr, toStr) {
+  const span = daySpan(fromStr, toStr);
+  const kind = span <= 31 ? 'daily' : span <= 180 ? 'weekly' : 'monthly';
+  const from = fromIso(fromStr);
+  const to = fromIso(toStr);
+  if (!from || !to) return { buckets: [], kind };
+
   const buckets = [];
-  for (let i = days - 1; i >= 0; i -= 1) {
-    const d = new Date(now);
-    d.setDate(d.getDate() - i);
-    buckets.push({
-      key: isoDateKey(d),
-      label: shortMonthDay(d),
-      start: new Date(d),
-      end: new Date(d),
-      incomeThb: 0,
-      expenseThb: 0,
-    });
+  if (kind === 'daily') {
+    for (let d = new Date(from); d <= to; d = addDays(d, 1)) {
+      buckets.push({ key: toIso(d), label: shortMonthDay(d), incomeThb: 0, expenseThb: 0 });
+    }
+  } else if (kind === 'weekly') {
+    for (let d = isoWeekStart(from); d <= to; d = addDays(d, 7)) {
+      buckets.push({ key: toIso(d), label: shortMonthDay(d), incomeThb: 0, expenseThb: 0 });
+    }
+  } else {
+    let d = new Date(from.getFullYear(), from.getMonth(), 1);
+    const last = new Date(to.getFullYear(), to.getMonth(), 1);
+    for (; d <= last; d = new Date(d.getFullYear(), d.getMonth() + 1, 1)) {
+      buckets.push({
+        key: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`,
+        label: MONTH_LABELS[d.getMonth()],
+        incomeThb: 0,
+        expenseThb: 0,
+      });
+    }
   }
+
   const indexByKey = new Map(buckets.map((b, i) => [b.key, i]));
+  const keyForEntry = (ed) => {
+    if (kind === 'daily') return toIso(ed);
+    if (kind === 'weekly') return toIso(isoWeekStart(ed));
+    return `${ed.getFullYear()}-${String(ed.getMonth() + 1).padStart(2, '0')}`;
+  };
+
   for (const e of entries) {
-    if (!e?.date) continue;
-    const idx = indexByKey.get(String(e.date).slice(0, 10));
+    const ed = fromIso(e?.date);
+    if (!ed) continue;
+    const idx = indexByKey.get(keyForEntry(ed));
     if (idx === undefined) continue;
     const amount = Number(e.amountThb) || 0;
     if (e.type === 'income') buckets[idx].incomeThb += amount;
     else if (e.type === 'expense') buckets[idx].expenseThb += amount;
   }
-  return buckets;
+  return { buckets, kind };
 }
 
-function buildWeeklyBuckets(entries, weeks) {
-  const now = startOfDay(new Date());
-  const thisWeekStart = isoWeekStart(now);
-  const buckets = [];
-  for (let i = weeks - 1; i >= 0; i -= 1) {
-    const start = new Date(thisWeekStart);
-    start.setDate(start.getDate() - i * 7);
-    const end = new Date(start);
-    end.setDate(end.getDate() + 6);
-    buckets.push({
-      key: isoDateKey(start),
-      label: shortMonthDay(start),
-      start,
-      end,
-      incomeThb: 0,
-      expenseThb: 0,
-    });
-  }
-  const earliest = buckets[0].start.getTime();
-  const latest = buckets[buckets.length - 1].end.getTime();
-  for (const e of entries) {
-    if (!e?.date) continue;
-    const ed = new Date(`${String(e.date).slice(0, 10)}T00:00:00`);
-    if (Number.isNaN(ed.getTime())) continue;
-    const t = ed.getTime();
-    if (t < earliest || t > latest) continue;
-    const weekStart = isoWeekStart(ed);
-    const key = isoDateKey(weekStart);
-    const idx = buckets.findIndex((b) => b.key === key);
-    if (idx === -1) continue;
-    const amount = Number(e.amountThb) || 0;
-    if (e.type === 'income') buckets[idx].incomeThb += amount;
-    else if (e.type === 'expense') buckets[idx].expenseThb += amount;
-  }
-  return buckets;
-}
-
-function buildMonthlyBuckets(entries, months) {
-  const now = new Date();
-  const buckets = [];
-  for (let i = months - 1; i >= 0; i -= 1) {
-    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-    const year = d.getFullYear();
-    const month = d.getMonth();
-    buckets.push({
-      key: `${year}-${String(month + 1).padStart(2, '0')}`,
-      label: MONTH_LABELS[month],
-      year,
-      month,
-      incomeThb: 0,
-      expenseThb: 0,
-    });
-  }
-  const indexByKey = new Map(buckets.map((b, i) => [b.key, i]));
-  for (const e of entries) {
-    if (!e?.date) continue;
-    const ed = new Date(`${String(e.date).slice(0, 10)}T00:00:00`);
-    if (Number.isNaN(ed.getTime())) continue;
-    const key = `${ed.getFullYear()}-${String(ed.getMonth() + 1).padStart(2, '0')}`;
-    const idx = indexByKey.get(key);
-    if (idx === undefined) continue;
-    const amount = Number(e.amountThb) || 0;
-    if (e.type === 'income') buckets[idx].incomeThb += amount;
-    else if (e.type === 'expense') buckets[idx].expenseThb += amount;
-  }
-  return buckets;
-}
-
-function buildBucketsForRange(entries, range) {
-  switch (range) {
-    case '1W':
-      return { buckets: buildDailyBuckets(entries, 7), kind: 'daily' };
-    case '1M':
-      return { buckets: buildDailyBuckets(entries, 30), kind: 'daily' };
-    case '3M':
-      return { buckets: buildWeeklyBuckets(entries, 13), kind: 'weekly' };
-    case '6M':
-      return { buckets: buildMonthlyBuckets(entries, 6), kind: 'monthly' };
-    case '1Y':
-      return { buckets: buildMonthlyBuckets(entries, 12), kind: 'monthly' };
-    default:
-      return { buckets: buildMonthlyBuckets(entries, 6), kind: 'monthly' };
-  }
-}
-
-function ChartTooltip({ active, payload, label, currency }) {
+function ChartTooltip({ active, payload, label, currency, view }) {
   if (!active || !payload || payload.length === 0) return null;
+  const box = {
+    backgroundColor: '#3E2723',
+    color: '#FFFFFF',
+    fontFamily: 'var(--font-sans)',
+    fontSize: 12,
+    padding: '8px 12px',
+    borderRadius: 8,
+    maxWidth: 220,
+    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+  };
+  if (view === 'cumulative') {
+    const cumulative = payload.find((p) => p.dataKey === 'cumulative')?.value ?? 0;
+    return (
+      <div style={box}>
+        <div style={{ fontWeight: 600, marginBottom: 4 }}>{label}</div>
+        <div>Running net: {formatAmount(cumulative)} {currency}</div>
+      </div>
+    );
+  }
   const income = payload.find((p) => p.dataKey === 'income')?.value ?? 0;
   const expense = payload.find((p) => p.dataKey === 'expense')?.value ?? 0;
-  const net = income - expense;
   return (
-    <div
-      style={{
-        backgroundColor: '#3E2723',
-        color: '#FFFFFF',
-        fontFamily: 'var(--font-sans)',
-        fontSize: 12,
-        padding: '8px 12px',
-        borderRadius: 8,
-        maxWidth: 220,
-        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-      }}
-    >
+    <div style={box}>
       <div style={{ fontWeight: 600, marginBottom: 4 }}>{label}</div>
       <div>Income: {formatAmount(income)} {currency}</div>
       <div>Expense: {formatAmount(expense)} {currency}</div>
       <div style={{ marginTop: 4, borderTop: '1px solid rgba(255,255,255,0.2)', paddingTop: 4 }}>
-        Net: {formatAmount(net)} {currency}
+        Net: {formatAmount(income - expense)} {currency}
       </div>
     </div>
   );
 }
 
-export default function MonthlyChart() {
-  const { data: entries } = useEntries();
+// Presentational: renders whatever range the dashboard passes in. The only
+// local state is the Bars/Cumulative lens, which is a view concern, not data.
+export default function MonthlyChart({ entries, from, to }) {
   const { currency } = useDisplayCurrency();
-  const [range, setRange] = useState(DEFAULT_RANGE);
+  const [view, setView] = useState('bars');
 
-  // Hydrate from localStorage after mount — same SSR-safe pattern used in
-  // DisplayCurrencyProvider, so the SSR pass and the first client paint
-  // agree on the default and then snap to the persisted value.
   useEffect(() => {
     if (typeof window === 'undefined') return;
     try {
-      const stored = window.localStorage.getItem(RANGE_STORAGE_KEY);
-      if (stored && RANGES.includes(stored)) setRange(stored);
+      const stored = window.localStorage.getItem(VIEW_STORAGE_KEY);
+      if (stored === 'bars' || stored === 'cumulative') setView(stored);
     } catch {
       // localStorage disabled; keep default.
     }
   }, []);
 
-  const handleSetRange = (next) => {
-    if (!RANGES.includes(next)) return;
-    setRange(next);
+  const handleView = (v) => {
+    setView(v);
     if (typeof window === 'undefined') return;
     try {
-      window.localStorage.setItem(RANGE_STORAGE_KEY, next);
+      window.localStorage.setItem(VIEW_STORAGE_KEY, v);
     } catch {
-      // localStorage full or disabled; state still updates for this session.
+      // localStorage full or disabled; state still updates this session.
     }
   };
 
@@ -259,23 +172,22 @@ export default function MonthlyChart() {
     return 1;
   }, [currency]);
 
-  // Aggregate THB totals per bucket first, then scale the whole bucket
-  // by the current THB to display rate exactly once. Same approach as the
-  // dashboard summary cards, so chart values and card values stay consistent.
+  // Aggregate THB totals per bucket first, then scale once by the THB->display
+  // rate so chart values stay consistent with the dashboard summary cards.
   const { chartData, kind } = useMemo(() => {
-    const { buckets, kind: k } = buildBucketsForRange(entries, range);
-    const data = buckets.map((b) => ({
-      label: b.label,
-      income: b.incomeThb * thbToDisplay,
-      expense: b.expenseThb * thbToDisplay,
-    }));
+    const { buckets, kind: k } = buildBuckets(entries, from, to);
+    let running = 0;
+    const data = buckets.map((b) => {
+      const income = b.incomeThb * thbToDisplay;
+      const expense = b.expenseThb * thbToDisplay;
+      running += income - expense;
+      return { label: b.label, income, expense, cumulative: running };
+    });
     return { chartData: data, kind: k };
-  }, [entries, range, thbToDisplay]);
+  }, [entries, from, to, thbToDisplay]);
 
   const hasData = chartData.some((d) => d.income > 0 || d.expense > 0);
 
-  // Always rotate x-axis labels so every range (1W / 1M / 3M / 6M / 1Y) shares
-  // the same axis treatment, regardless of bucket count.
   const xAxisProps = {
     tick: { fontSize: 10, fontFamily: 'var(--font-sans)', fill: '#6D4C41' },
     angle: -35,
@@ -285,31 +197,21 @@ export default function MonthlyChart() {
     interval: 'preserveStartEnd',
   };
   const chartMargin = { top: 12, right: 8, left: 0, bottom: 28 };
-  const isDense1M = range === '1M';
-  const maxBarSize = isDense1M ? 10 : kind === 'daily' ? 16 : kind === 'weekly' ? 20 : 28;
+  const isDenseDaily = kind === 'daily' && chartData.length > 14;
+  const maxBarSize = isDenseDaily ? 10 : kind === 'daily' ? 16 : kind === 'weekly' ? 20 : 28;
 
   return (
     <Card className="flex flex-col">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-baseline gap-2">
           <h3 className="font-display text-[20px] text-[var(--color-primary)] leading-none">
-            {RANGE_HEADING[range]}
+            Trend
           </h3>
-          <span className="text-[12px] font-sans text-[var(--color-text-muted)]">
-            · {currency}
-          </span>
+          <span className="text-[12px] font-sans text-[var(--color-text-muted)]">· {currency}</span>
         </div>
-        <div className="flex gap-1.5 flex-wrap">
-          {RANGES.map((r) => (
-            <Pill
-              key={r}
-              size="sm"
-              active={range === r}
-              onClick={() => handleSetRange(r)}
-            >
-              {r}
-            </Pill>
-          ))}
+        <div className="flex gap-1.5">
+          <Pill size="sm" active={view === 'bars'} onClick={() => handleView('bars')}>Bars</Pill>
+          <Pill size="sm" active={view === 'cumulative'} onClick={() => handleView('cumulative')}>Cumulative</Pill>
         </div>
       </div>
 
@@ -322,38 +224,54 @@ export default function MonthlyChart() {
       ) : (
         <div className="mt-4 h-[200px] md:h-[240px] w-full">
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={chartData} margin={chartMargin}>
-              <CartesianGrid stroke="#E8DDD0" vertical={false} />
-              <XAxis
-                dataKey="label"
-                tickLine={false}
-                axisLine={{ stroke: '#E8DDD0' }}
-                {...xAxisProps}
-              />
-              <YAxis
-                tick={{ fontSize: 12, fontFamily: 'var(--font-sans)', fill: '#6D4C41' }}
-                tickLine={false}
-                axisLine={false}
-                tickFormatter={formatTick}
-                width={48}
-              />
-              <Tooltip
-                cursor={{ fill: 'rgba(139, 94, 60, 0.08)' }}
-                content={<ChartTooltip currency={currency} />}
-              />
-              <Bar
-                dataKey="income"
-                fill={INCOME_COLOR}
-                radius={[4, 4, 0, 0]}
-                maxBarSize={maxBarSize}
-              />
-              <Bar
-                dataKey="expense"
-                fill={EXPENSE_COLOR}
-                radius={[4, 4, 0, 0]}
-                maxBarSize={maxBarSize}
-              />
-            </BarChart>
+            {view === 'cumulative' ? (
+              <AreaChart data={chartData} margin={chartMargin}>
+                <defs>
+                  <linearGradient id="netFill" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor={NET_COLOR} stopOpacity={0.3} />
+                    <stop offset="100%" stopColor={NET_COLOR} stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid stroke="#E8DDD0" vertical={false} />
+                <XAxis dataKey="label" tickLine={false} axisLine={{ stroke: '#E8DDD0' }} {...xAxisProps} />
+                <YAxis
+                  tick={{ fontSize: 12, fontFamily: 'var(--font-sans)', fill: '#6D4C41' }}
+                  tickLine={false}
+                  axisLine={false}
+                  tickFormatter={formatTick}
+                  width={48}
+                />
+                <Tooltip
+                  cursor={{ stroke: 'rgba(139, 94, 60, 0.25)' }}
+                  content={<ChartTooltip currency={currency} view="cumulative" />}
+                />
+                <Area
+                  type="monotone"
+                  dataKey="cumulative"
+                  stroke={NET_COLOR}
+                  strokeWidth={2}
+                  fill="url(#netFill)"
+                />
+              </AreaChart>
+            ) : (
+              <BarChart data={chartData} margin={chartMargin}>
+                <CartesianGrid stroke="#E8DDD0" vertical={false} />
+                <XAxis dataKey="label" tickLine={false} axisLine={{ stroke: '#E8DDD0' }} {...xAxisProps} />
+                <YAxis
+                  tick={{ fontSize: 12, fontFamily: 'var(--font-sans)', fill: '#6D4C41' }}
+                  tickLine={false}
+                  axisLine={false}
+                  tickFormatter={formatTick}
+                  width={48}
+                />
+                <Tooltip
+                  cursor={{ fill: 'rgba(139, 94, 60, 0.08)' }}
+                  content={<ChartTooltip currency={currency} view="bars" />}
+                />
+                <Bar dataKey="income" fill={INCOME_COLOR} radius={[4, 4, 0, 0]} maxBarSize={maxBarSize} />
+                <Bar dataKey="expense" fill={EXPENSE_COLOR} radius={[4, 4, 0, 0]} maxBarSize={maxBarSize} />
+              </BarChart>
+            )}
           </ResponsiveContainer>
         </div>
       )}

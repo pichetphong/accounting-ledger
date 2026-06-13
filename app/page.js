@@ -1,91 +1,89 @@
 'use client';
 
-// Dashboard splits monthly totals into two views:
+// Dashboard splits totals into two views:
 //   Section A "All currencies" = display-currency view. THB totals are
 //   converted to the user's display currency at today's FX rate. Convertible
 //   apples-to-apples comparison.
 //   Section B "By currency" = audit view. Each currency's raw amounts are
 //   summed in their native unit — no FX applied. Useful for reconciling
 //   against bank/wallet statements that live in a single currency.
+// Every section reads the same date range from useDashboardRange, so the whole
+// page reflects one selected period.
 
 import { useMemo } from 'react';
 import Link from 'next/link';
 import SummaryCard from '@/components/dashboard/SummaryCard';
 import MonthlyChart from '@/components/dashboard/MonthlyChart';
+import CategoryBreakdown from '@/components/dashboard/CategoryBreakdown';
+import DashboardFilters from '@/components/dashboard/DashboardFilters';
 import EntryRow from '@/components/entries/EntryRow';
 import Button from '@/components/ui/Button';
 import RequireAuth from '@/components/auth/RequireAuth';
 import { useEntries } from '@/lib/queries/entries';
 import { useDisplayCurrency } from '@/lib/displayCurrency';
-import { getThbToUsdRate, getThbToJpyRate } from '@/lib/fx';
-import { SUPPORTED_CURRENCIES } from '@/lib/fx';
+import useDashboardRange from '@/lib/useDashboardRange';
+import { getThbToUsdRate, getThbToJpyRate, SUPPORTED_CURRENCIES } from '@/lib/fx';
 
-function thisMonth(entries) {
-  const now = new Date();
-  const y = now.getFullYear();
-  const m = now.getMonth();
-  return entries.filter((e) => {
-    const d = new Date(e.date);
-    return d.getFullYear() === y && d.getMonth() === m;
-  });
+function sumThb(rows, type) {
+  return rows.filter((e) => e.type === type).reduce((s, e) => s + e.amountThb, 0);
+}
+
+// Percent change vs the prior period; null when there's no prior baseline to
+// compare against (avoids a misleading "+Infinity%").
+function pctChange(current, previous) {
+  if (!previous) return null;
+  return ((current - previous) / Math.abs(previous)) * 100;
 }
 
 function DashboardInner() {
-  const { data: entries, loading, error } = useEntries();
+  const range = useDashboardRange();
   const { currency } = useDisplayCurrency();
+  const { data: entries, loading, error } = useEntries({ from: range.from, to: range.to });
+  const { data: prevEntries } = useEntries({ from: range.prev.from, to: range.prev.to });
 
-  const { incomeThb, expenseThb, netThb, recent, monthly } = useMemo(() => {
-    const mo = thisMonth(entries);
-    const inc = mo
-      .filter((e) => e.type === 'income')
-      .reduce((sum, e) => sum + e.amountThb, 0);
-    const exp = mo
-      .filter((e) => e.type === 'expense')
-      .reduce((sum, e) => sum + e.amountThb, 0);
-    const rec = [...entries]
-      .sort((a, b) => (a.date < b.date ? 1 : -1))
-      .slice(0, 5);
+  const thbToDisplay = useMemo(() => {
+    if (currency === 'USD') return getThbToUsdRate();
+    if (currency === 'JPY') return getThbToJpyRate();
+    return 1;
+  }, [currency]);
+
+  const { incomeThb, expenseThb, netThb, deltas, savingsRate, recent } = useMemo(() => {
+    const inc = sumThb(entries, 'income');
+    const exp = sumThb(entries, 'expense');
+    const net = inc - exp;
+    const prevInc = sumThb(prevEntries, 'income');
+    const prevExp = sumThb(prevEntries, 'expense');
+    const rec = [...entries].sort((a, b) => (a.date < b.date ? 1 : -1)).slice(0, 5);
     return {
       incomeThb: inc,
       expenseThb: exp,
-      netThb: inc - exp,
+      netThb: net,
+      deltas: {
+        income: pctChange(inc, prevInc),
+        expense: pctChange(exp, prevExp),
+        net: pctChange(net, prevInc - prevExp),
+      },
+      savingsRate: inc > 0 ? (net / inc) * 100 : null,
       recent: rec,
-      monthly: mo,
     };
-  }, [entries]);
+  }, [entries, prevEntries]);
 
-  // Convert THB totals to the display currency using the CURRENT FX rate,
-  // not each entry's locked rate at insert time. The locked per-entry rate
-  // is correct for the audit trail on /entries, but the dashboard answers
-  // "what's this worth right now?" so we apply today's rate to the THB sum.
-  // Dashboard reads the rate at render time; if the FX cache refreshes in
-  // the background, the values won't auto-update until the next render.
-  const { income, expense, net } = useMemo(() => {
-    let thbToDisplay = 1;
-    if (currency === 'USD') thbToDisplay = getThbToUsdRate();
-    else if (currency === 'JPY') thbToDisplay = getThbToJpyRate();
-    return {
-      income: incomeThb * thbToDisplay,
-      expense: expenseThb * thbToDisplay,
-      net: netThb * thbToDisplay,
-    };
-  }, [currency, incomeThb, expenseThb, netThb]);
+  const { income, expense, net } = useMemo(() => ({
+    income: incomeThb * thbToDisplay,
+    expense: expenseThb * thbToDisplay,
+    net: netThb * thbToDisplay,
+  }), [thbToDisplay, incomeThb, expenseThb, netThb]);
 
   // Section B: sum raw `amount` per currency, no FX. Every supported currency
-  // renders even if there are zero entries — keeps the layout stable and
-  // signals to the user that the section is there for them.
+  // renders even with zero entries, keeping the layout stable.
   const perCurrency = useMemo(() => {
     return SUPPORTED_CURRENCIES.map((ccy) => {
-      const rows = monthly.filter((e) => e.currency === ccy);
-      const inc = rows
-        .filter((e) => e.type === 'income')
-        .reduce((s, e) => s + (Number(e.amount) || 0), 0);
-      const exp = rows
-        .filter((e) => e.type === 'expense')
-        .reduce((s, e) => s + (Number(e.amount) || 0), 0);
+      const rows = entries.filter((e) => e.currency === ccy);
+      const inc = rows.filter((e) => e.type === 'income').reduce((s, e) => s + (Number(e.amount) || 0), 0);
+      const exp = rows.filter((e) => e.type === 'expense').reduce((s, e) => s + (Number(e.amount) || 0), 0);
       return { currency: ccy, income: inc, expense: exp, net: inc - exp };
     });
-  }, [monthly]);
+  }, [entries]);
 
   return (
     <div className="flex flex-col gap-6">
@@ -94,9 +92,11 @@ function DashboardInner() {
           Dashboard
         </h1>
         <p className="text-[13px] text-[var(--color-text-muted)] mt-2">
-          This month at a glance.
+          {range.label} at a glance.
         </p>
       </header>
+
+      <DashboardFilters range={range} />
 
       {error && (
         <div className="rounded-[12px] bg-[var(--color-error-bg)] text-[var(--color-error)] text-[13px] p-3">
@@ -106,22 +106,35 @@ function DashboardInner() {
 
       {/* Order: KPI summary -> primary visualization -> per-currency drilldown. */}
       <section className="flex flex-col gap-3">
-        <div>
-          <h3 className="font-display text-[20px] text-[var(--color-primary)] leading-none">
-            All currencies
-          </h3>
-          <p className="text-[13px] text-[var(--color-text-muted)] mt-1">
-            Sums in {currency} equivalent.
-          </p>
+        <div className="flex flex-wrap items-baseline justify-between gap-2">
+          <div>
+            <h3 className="font-display text-[20px] text-[var(--color-primary)] leading-none">
+              All currencies
+            </h3>
+            <p className="text-[13px] text-[var(--color-text-muted)] mt-1">
+              Sums in {currency} equivalent.
+            </p>
+          </div>
+          {savingsRate != null && (
+            <span className="text-[13px] font-sans text-[var(--color-text-muted)]">
+              Saved{' '}
+              <span className={`font-mono font-medium ${savingsRate >= 0 ? 'text-[var(--color-success)]' : 'text-[var(--color-error)]'}`}>
+                {savingsRate.toFixed(0)}%
+              </span>{' '}
+              of income
+            </span>
+          )}
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <SummaryCard label="Net" amount={net} currency={currency} tone="net" />
-          <SummaryCard label="Income" amount={income} currency={currency} tone="income" />
-          <SummaryCard label="Expense" amount={expense} currency={currency} tone="expense" />
+          <SummaryCard label="Net" amount={net} currency={currency} tone="net" delta={deltas.net} deltaLabel="vs prev period" />
+          <SummaryCard label="Income" amount={income} currency={currency} tone="income" delta={deltas.income} deltaLabel="vs prev period" />
+          <SummaryCard label="Expense" amount={expense} currency={currency} tone="expense" delta={deltas.expense} deltaPositiveIsGood={false} deltaLabel="vs prev period" />
         </div>
       </section>
 
-      <MonthlyChart />
+      <MonthlyChart entries={entries} from={range.from} to={range.to} />
+
+      <CategoryBreakdown entries={entries} currency={currency} thbToDisplay={thbToDisplay} />
 
       <section className="flex flex-col gap-4">
         <div>
@@ -139,32 +152,12 @@ function DashboardInner() {
                 <span className="text-[14px] font-medium text-[var(--color-primary)] font-sans">
                   {row.currency}
                 </span>
-                <span className="text-[14px] text-[var(--color-text-subtle)] font-sans">
-                  ·
-                </span>
+                <span className="text-[14px] text-[var(--color-text-subtle)] font-sans">·</span>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <SummaryCard
-                  label="Net"
-                  amount={row.net}
-                  currency={row.currency}
-                  tone="net"
-                  size="sm"
-                />
-                <SummaryCard
-                  label="Income"
-                  amount={row.income}
-                  currency={row.currency}
-                  tone="income"
-                  size="sm"
-                />
-                <SummaryCard
-                  label="Expense"
-                  amount={row.expense}
-                  currency={row.currency}
-                  tone="expense"
-                  size="sm"
-                />
+                <SummaryCard label="Net" amount={row.net} currency={row.currency} tone="net" size="sm" />
+                <SummaryCard label="Income" amount={row.income} currency={row.currency} tone="income" size="sm" />
+                <SummaryCard label="Expense" amount={row.expense} currency={row.currency} tone="expense" size="sm" />
               </div>
             </div>
           ))}
@@ -180,7 +173,7 @@ function DashboardInner() {
         ) : recent.length === 0 ? (
           <div className="bg-[var(--color-surface)] rounded-[12px] p-6 shadow-raised flex flex-col items-start gap-3">
             <p className="text-[14px] text-[var(--color-text-muted)]">
-              No entries yet — add your first one.
+              No entries in this range.
             </p>
             <Link href="/entries/new">
               <Button variant="primary" size="md">Add entry</Button>

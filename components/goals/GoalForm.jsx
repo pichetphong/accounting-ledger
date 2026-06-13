@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
+import DatePicker from '@/components/ui/DatePicker';
 import Pill from '@/components/ui/Pill';
 import useAuth from '@/lib/useAuth';
 import { createGoal, updateGoal } from '@/lib/queries/goals';
@@ -232,12 +233,11 @@ export default function GoalForm({ initialValues = null, mode = 'create' }) {
         required
       />
 
-      <Input
+      <DatePicker
         label="Deadline"
         name="deadline"
-        type="date"
         value={deadline}
-        onChange={(e) => setDeadline(e.target.value)}
+        onChange={setDeadline}
         min={isEdit ? undefined : todayISO()}
         required
       />
