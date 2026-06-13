@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import Button from '@/components/ui/Button';
+import ThemeToggle from '@/components/ui/ThemeToggle';
 import useAuth from '@/lib/useAuth';
 
 const LINKS = [
@@ -22,11 +23,11 @@ export default function Navbar() {
   };
 
   return (
-    <header className="w-full border-b-[5px] border-black bg-white">
+    <header className="w-full border-b-[5px] border-[var(--rb-ink)] bg-[var(--rb-paper)]">
       <div className="max-w-5xl mx-auto flex items-center justify-between gap-3 px-4 h-16">
         <Link
           href="/"
-          className="font-display text-[18px] md:text-[24px] uppercase tracking-[0.02em] text-black leading-none shrink-0"
+          className="font-display text-[18px] md:text-[24px] uppercase tracking-[0.02em] text-[var(--rb-ink)] leading-none shrink-0"
         >
           Ledger
         </Link>
@@ -38,7 +39,7 @@ export default function Navbar() {
                 key={l.href}
                 href={l.href}
                 className={`px-3 h-9 inline-flex items-center border-[3px] transition-colors ${
-                  active ? 'bg-black text-white border-black' : 'bg-white text-black border-transparent hover:border-black'
+                  active ? 'bg-[var(--rb-ink)] text-[var(--rb-paper)] border-[var(--rb-ink)]' : 'bg-[var(--rb-paper)] text-[var(--rb-ink)] border-transparent hover:border-[var(--rb-ink)]'
                 }`}
               >
                 {l.label}
@@ -51,17 +52,20 @@ export default function Navbar() {
             </Link>
           )}
         </nav>
-        <div className="hidden md:flex items-center gap-3">
+        <div className="flex items-center gap-3">
+          <ThemeToggle />
           <Link
             href="/settings/categories"
-            className="text-[13px] font-semibold uppercase tracking-[0.06em] text-black underline underline-offset-2 hover:text-[var(--color-info)]"
+            className="hidden md:inline text-[13px] font-semibold uppercase tracking-[0.06em] text-[var(--rb-ink)] underline underline-offset-2 hover:text-[var(--color-info)]"
           >
             Settings
           </Link>
           {user && (
-            <Button variant="secondary" size="sm" onClick={handleSignOut}>
-              Sign out
-            </Button>
+            <span className="hidden md:inline">
+              <Button variant="secondary" size="sm" onClick={handleSignOut}>
+                Sign out
+              </Button>
+            </span>
           )}
         </div>
       </div>

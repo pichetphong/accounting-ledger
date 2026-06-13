@@ -28,10 +28,10 @@ export default function DateRangePicker({ from, to, onChange, className = '' }) 
         options={RANGE_OPTIONS}
         inputProps={{
           placeholder: 'Pick dates',
-          className: `h-8 w-[200px] max-w-full px-3 border-[3px] border-black text-[12px] font-mono uppercase tracking-[0.04em] cursor-pointer outline-none transition-colors ${
+          className: `h-8 w-[200px] max-w-full px-3 border-[3px] border-[var(--rb-ink)] text-[12px] font-mono uppercase tracking-[0.04em] cursor-pointer outline-none transition-colors ${
             hasRange
-              ? 'bg-black text-white placeholder:text-white/70'
-              : 'bg-white text-black placeholder:text-black hover:bg-black hover:text-white hover:placeholder:text-white'
+              ? 'bg-[var(--rb-ink)] text-[var(--rb-paper)] placeholder:text-[var(--rb-paper)]'
+              : 'bg-[var(--rb-paper)] text-[var(--rb-ink)] placeholder:text-[var(--rb-ink)] hover:bg-[var(--rb-ink)] hover:text-[var(--rb-paper)] hover:placeholder:text-[var(--rb-paper)]'
           }`,
         }}
       />

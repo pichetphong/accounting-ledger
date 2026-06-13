@@ -79,12 +79,12 @@ function LoginForm() {
           {submitting ? 'Sending...' : sent ? 'Link sent' : 'Send magic link'}
         </Button>
         {error && (
-          <div className="border-[3px] border-[var(--color-error)] bg-white text-[var(--color-error)] text-[13px] p-3">
+          <div className="border-[3px] border-[var(--color-error)] bg-[var(--rb-paper)] text-[var(--color-error)] text-[13px] p-3">
             {error}
           </div>
         )}
         {sent && (
-          <div className="border-[3px] border-[var(--color-info)] bg-white text-[var(--color-info)] text-[13px] p-3">
+          <div className="border-[3px] border-[var(--color-info)] bg-[var(--rb-paper)] text-[var(--color-info)] text-[13px] p-3">
             Check your email — we sent a sign-in link to <strong>{sentTo}</strong>.
           </div>
         )}
@@ -105,7 +105,7 @@ export default function LoginPage() {
   return (
     <div className="flex flex-col gap-6 max-w-md mx-auto">
       <header>
-        <h1 className="font-display text-[44px] md:text-[56px] uppercase text-black leading-[0.95]">
+        <h1 className="font-display text-[44px] md:text-[56px] uppercase text-[var(--rb-ink)] leading-[0.95]">
           Sign in to Accounting Ledger
         </h1>
         <p className="text-[13px] text-[var(--color-text-muted)] mt-2">

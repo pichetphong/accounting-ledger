@@ -65,7 +65,7 @@ function EditGoalInner({ id }) {
   if (notFound || !goal) {
     return (
       <div className="flex flex-col gap-4">
-        <div className="bg-[var(--color-surface)] rounded-[12px] p-6 border-[3px] border-black flex flex-col items-start gap-3">
+        <div className="bg-[var(--color-surface)] rounded-[12px] p-6 border-[3px] border-[var(--rb-ink)] flex flex-col items-start gap-3">
           <p className="text-[14px] text-[var(--color-text)]">Goal not found.</p>
           <Link
             href="/goals"
@@ -81,7 +81,7 @@ function EditGoalInner({ id }) {
   return (
     <div className="flex flex-col gap-6">
       <header>
-        <h1 className="font-display text-[44px] md:text-[56px] uppercase text-black leading-[0.95]">
+        <h1 className="font-display text-[44px] md:text-[56px] uppercase text-[var(--rb-ink)] leading-[0.95]">
           Edit goal
         </h1>
         <p className="text-[13px] text-[var(--color-text-muted)] mt-2">

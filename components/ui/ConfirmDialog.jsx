@@ -120,11 +120,11 @@ export default function ConfirmDialog({
         aria-modal="true"
         aria-labelledby={titleId}
         aria-describedby={description ? descriptionId : undefined}
-        className="confirm-dialog-surface w-full max-w-[420px] border-[5px] border-black bg-white p-6"
+        className="confirm-dialog-surface w-full max-w-[420px] border-[5px] border-[var(--rb-ink)] bg-[var(--rb-paper)] p-6"
       >
         <h3
           id={titleId}
-          className="font-display text-[22px] uppercase leading-[1.05] text-black"
+          className="font-display text-[22px] uppercase leading-[1.05] text-[var(--rb-ink)]"
         >
           {title}
         </h3>

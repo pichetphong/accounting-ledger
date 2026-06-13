@@ -39,7 +39,7 @@ export default function CategoryBreakdown({ entries, currency, thbToDisplay }) {
   return (
     <Card className="flex flex-col gap-4">
       <div>
-        <h3 className="font-display text-[22px] uppercase text-black leading-none">
+        <h3 className="font-display text-[22px] uppercase text-[var(--rb-ink)] leading-none">
           Where it went
         </h3>
         <p className="font-mono text-[12px] uppercase tracking-[0.04em] text-[var(--color-text-muted)] mt-1">
@@ -48,8 +48,8 @@ export default function CategoryBreakdown({ entries, currency, thbToDisplay }) {
       </div>
 
       {rows.length === 0 || total <= 0 ? (
-        <div className="h-[120px] flex items-center justify-center border-[3px] border-black bg-[var(--color-surface-inset)]">
-          <span className="font-mono text-[12px] uppercase tracking-[0.04em] text-black text-center px-4">
+        <div className="h-[120px] flex items-center justify-center border-[3px] border-[var(--rb-ink)] bg-[var(--color-surface-inset)]">
+          <span className="font-mono text-[12px] uppercase tracking-[0.04em] text-[var(--rb-ink)] text-center px-4">
             No expenses in this range yet
           </span>
         </div>
@@ -60,17 +60,17 @@ export default function CategoryBreakdown({ entries, currency, thbToDisplay }) {
             return (
               <div key={r.category} className="flex flex-col gap-1">
                 <div className="flex items-baseline justify-between gap-2">
-                  <span className="text-[13px] font-semibold uppercase tracking-[0.02em] text-black truncate">
+                  <span className="text-[13px] font-semibold uppercase tracking-[0.02em] text-[var(--rb-ink)] truncate">
                     {r.category}
                   </span>
-                  <span className="font-mono text-[13px] font-bold text-black whitespace-nowrap shrink-0">
+                  <span className="font-mono text-[13px] font-bold text-[var(--rb-ink)] whitespace-nowrap shrink-0">
                     {formatAmount(r.amount)}
                     <span className="text-[var(--color-text-muted)]"> / {pct.toFixed(0)}%</span>
                   </span>
                 </div>
-                <div className="h-3 border-2 border-black bg-white overflow-hidden">
+                <div className="h-3 border-2 border-[var(--rb-ink)] bg-[var(--rb-paper)] overflow-hidden">
                   <div
-                    className="h-full bg-black"
+                    className="h-full bg-[var(--rb-ink)]"
                     style={{ width: `${Math.max(pct, 2)}%` }}
                   />
                 </div>

@@ -88,11 +88,11 @@ function DashboardInner() {
 
   return (
     <div className="flex flex-col gap-6">
-      <header className="border-b-[5px] border-black pb-3">
-        <h1 className="font-display text-[44px] md:text-[56px] uppercase text-black leading-[0.95]">
+      <header className="border-b-[5px] border-[var(--rb-ink)] pb-3">
+        <h1 className="font-display text-[44px] md:text-[56px] uppercase text-[var(--rb-ink)] leading-[0.95]">
           Dashboard
         </h1>
-        <p className="font-mono text-[12px] uppercase tracking-[0.08em] text-black mt-2">
+        <p className="font-mono text-[12px] uppercase tracking-[0.08em] text-[var(--rb-ink)] mt-2">
           {range.label} / at a glance
         </p>
       </header>
@@ -100,7 +100,7 @@ function DashboardInner() {
       <DashboardFilters range={range} />
 
       {error && (
-        <div className="border-[3px] border-[var(--color-error)] bg-white text-[var(--color-error)] text-[13px] p-3">
+        <div className="border-[3px] border-[var(--color-error)] bg-[var(--rb-paper)] text-[var(--color-error)] text-[13px] p-3">
           {error}
         </div>
       )}
@@ -109,7 +109,7 @@ function DashboardInner() {
       <section className="flex flex-col gap-3">
         <div className="flex flex-wrap items-baseline justify-between gap-2">
           <div>
-            <h3 className="font-display text-[22px] uppercase text-black leading-none">
+            <h3 className="font-display text-[22px] uppercase text-[var(--rb-ink)] leading-none">
               All currencies
             </h3>
             <p className="font-mono text-[12px] uppercase tracking-[0.04em] text-[var(--color-text-muted)] mt-1">
@@ -117,7 +117,7 @@ function DashboardInner() {
             </p>
           </div>
           {savingsRate != null && (
-            <span className="font-mono text-[12px] uppercase tracking-[0.04em] text-black">
+            <span className="font-mono text-[12px] uppercase tracking-[0.04em] text-[var(--rb-ink)]">
               Saved <span className="font-bold">{savingsRate.toFixed(0)}%</span> of income
             </span>
           )}
@@ -135,7 +135,7 @@ function DashboardInner() {
 
       <section className="flex flex-col gap-4">
         <div>
-          <h3 className="font-display text-[22px] uppercase text-black leading-none">
+          <h3 className="font-display text-[22px] uppercase text-[var(--rb-ink)] leading-none">
             By currency
           </h3>
           <p className="font-mono text-[12px] uppercase tracking-[0.04em] text-[var(--color-text-muted)] mt-1">
@@ -162,13 +162,13 @@ function DashboardInner() {
       </section>
 
       <section className="flex flex-col gap-3">
-        <h2 className="font-display text-[22px] uppercase text-black">
+        <h2 className="font-display text-[22px] uppercase text-[var(--rb-ink)]">
           Recent entries
         </h2>
         {loading ? (
           <SkeletonRows />
         ) : recent.length === 0 ? (
-          <div className="bg-[var(--color-surface)] rounded-[12px] p-6 border-[3px] border-black flex flex-col items-start gap-3">
+          <div className="bg-[var(--color-surface)] rounded-[12px] p-6 border-[3px] border-[var(--rb-ink)] flex flex-col items-start gap-3">
             <p className="text-[14px] text-[var(--color-text-muted)]">
               No entries in this range.
             </p>
@@ -199,7 +199,7 @@ function SkeletonRows() {
       {[0, 1, 2].map((i) => (
         <div
           key={i}
-          className="bg-[var(--color-surface)] rounded-[12px] p-4 border-[3px] border-black flex items-center justify-between gap-3 opacity-50"
+          className="bg-[var(--color-surface)] rounded-[12px] p-4 border-[3px] border-[var(--rb-ink)] flex items-center justify-between gap-3 opacity-50"
         >
           <div className="flex flex-col gap-2 min-w-0 flex-1">
             <div className="h-3 w-24 bg-[var(--color-surface-inset)] rounded" />

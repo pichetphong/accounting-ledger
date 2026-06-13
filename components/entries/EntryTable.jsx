@@ -25,20 +25,20 @@ export default function EntryTable({ entries, title = null, compact = false }) {
   return (
     <div>
       {title && (
-        <div className="bg-black text-white font-display text-[16px] uppercase tracking-[0.06em] px-3 py-2 border-[3px] border-b-0 border-black">
+        <div className="bg-[var(--rb-ink)] text-[var(--rb-paper)] font-display text-[16px] uppercase tracking-[0.06em] px-3 py-2 border-[3px] border-b-0 border-[var(--rb-ink)]">
           {title}
         </div>
       )}
 
       {entries.length === 0 ? (
-        <div className="border-[3px] border-black px-3 py-6 text-center font-mono text-[12px] uppercase tracking-[0.04em] text-black">
+        <div className="border-[3px] border-[var(--rb-ink)] px-3 py-6 text-center font-mono text-[12px] uppercase tracking-[0.04em] text-[var(--rb-ink)]">
           No entries
         </div>
       ) : (
-        <div className="border-[3px] border-black overflow-x-auto">
+        <div className="border-[3px] border-[var(--rb-ink)] overflow-x-auto">
           <table className="w-full border-collapse text-left">
             <thead>
-              <tr className="bg-black text-white font-mono text-[11px] uppercase tracking-[0.06em]">
+              <tr className="bg-[var(--rb-ink)] text-[var(--rb-paper)] font-mono text-[11px] uppercase tracking-[0.06em]">
                 <th className="px-3 py-2 font-bold whitespace-nowrap">Date</th>
                 <th className="px-3 py-2 font-bold">Name</th>
                 <th className="px-3 py-2 font-bold whitespace-nowrap">Category</th>
@@ -53,7 +53,7 @@ export default function EntryTable({ entries, title = null, compact = false }) {
                   <tr
                     key={e.id}
                     onClick={() => router.push(`/entries/${e.id}/edit`)}
-                    className="border-t-[3px] border-black bg-white cursor-pointer transition-colors hover:bg-black hover:text-white"
+                    className="border-t-[3px] border-[var(--rb-ink)] bg-[var(--rb-paper)] cursor-pointer transition-colors hover:bg-[var(--rb-ink)] hover:text-[var(--rb-paper)]"
                   >
                     <td className="px-3 py-2 font-mono text-[13px] whitespace-nowrap align-top">{e.date}</td>
                     <td className="px-3 py-2 text-[13px] align-top max-w-[220px] truncate">
@@ -75,7 +75,7 @@ export default function EntryTable({ entries, title = null, compact = false }) {
               })}
             </tbody>
             <tfoot>
-              <tr className="border-t-[3px] border-black bg-[var(--color-surface-inset)] font-mono text-[12px] font-bold uppercase tracking-[0.04em]">
+              <tr className="border-t-[3px] border-[var(--rb-ink)] bg-[var(--color-surface-inset)] font-mono text-[12px] font-bold uppercase tracking-[0.04em]">
                 <td className="px-3 py-2 whitespace-nowrap" colSpan={cols}>
                   {entries.length} {entries.length === 1 ? 'entry' : 'entries'} / total
                 </td>

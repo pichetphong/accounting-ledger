@@ -13,10 +13,10 @@ export default function Pill({
   className = '',
 }) {
   const sizeClass = SIZE_CLASSES[size] ?? SIZE_CLASSES.md;
-  const base = `inline-flex items-center justify-center font-semibold uppercase tracking-[0.06em] border-black transition-colors cursor-pointer select-none ${sizeClass}`;
+  const base = `inline-flex items-center justify-center font-semibold uppercase tracking-[0.06em] border-[var(--rb-ink)] transition-colors cursor-pointer select-none ${sizeClass}`;
   const state = active
-    ? 'bg-black text-white'
-    : 'bg-white text-black hover:bg-black hover:text-white';
+    ? 'bg-[var(--rb-ink)] text-[var(--rb-paper)]'
+    : 'bg-[var(--rb-paper)] text-[var(--rb-ink)] hover:bg-[var(--rb-ink)] hover:text-[var(--rb-paper)]';
 
   return (
     <button type="button" onClick={onClick} className={`${base} ${state} ${className}`}>

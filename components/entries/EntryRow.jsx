@@ -13,7 +13,7 @@ export default function EntryRow({ entry }) {
   return (
     <Link
       href={`/entries/${entry.id}/edit`}
-      className="group bg-white border-[3px] border-black p-4 flex items-center justify-between gap-3 transition-colors hover:bg-black hover:text-white"
+      className="group bg-[var(--rb-paper)] border-[3px] border-[var(--rb-ink)] p-4 flex items-center justify-between gap-3 transition-colors hover:bg-[var(--rb-ink)] hover:text-[var(--rb-paper)]"
     >
       <div className="flex flex-col min-w-0">
         <div className="flex items-center gap-2 text-[11px] font-mono uppercase tracking-[0.04em]">

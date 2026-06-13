@@ -22,7 +22,7 @@ function SkeletonRows() {
       {[0, 1, 2].map((i) => (
         <div
           key={i}
-          className="bg-[var(--color-surface)] rounded-[12px] p-4 border-[3px] border-black flex items-center justify-between gap-3 opacity-50"
+          className="bg-[var(--color-surface)] rounded-[12px] p-4 border-[3px] border-[var(--rb-ink)] flex items-center justify-between gap-3 opacity-50"
         >
           <div className="flex flex-col gap-2 min-w-0 flex-1">
             <div className="h-3 w-24 bg-[var(--color-surface-inset)] rounded" />
@@ -57,12 +57,12 @@ function EntriesInner() {
 
   return (
     <div className="flex flex-col gap-6">
-      <header className="flex items-end justify-between border-b-[5px] border-black pb-3">
+      <header className="flex items-end justify-between border-b-[5px] border-[var(--rb-ink)] pb-3">
         <div>
-          <h1 className="font-display text-[44px] md:text-[56px] uppercase text-black leading-[0.95]">
+          <h1 className="font-display text-[44px] md:text-[56px] uppercase text-[var(--rb-ink)] leading-[0.95]">
             Entries
           </h1>
-          <p className="font-mono text-[12px] uppercase tracking-[0.08em] text-black mt-2">
+          <p className="font-mono text-[12px] uppercase tracking-[0.08em] text-[var(--rb-ink)] mt-2">
             {loading ? 'Loading...' : `${sorted.length} entries / newest first`}
           </p>
         </div>
@@ -85,14 +85,14 @@ function EntriesInner() {
       </div>
 
       {error ? (
-        <div className="bg-[var(--color-surface)] rounded-[12px] p-4 border-[3px] border-black">
+        <div className="bg-[var(--color-surface)] rounded-[12px] p-4 border-[3px] border-[var(--rb-ink)]">
           <p className="text-[13px] text-[var(--color-error)]">{error}</p>
         </div>
       ) : loading ? (
         <SkeletonRows />
       ) : sorted.length === 0 ? (
         filtersActive ? (
-          <div className="bg-[var(--color-surface)] rounded-[12px] p-6 border-[3px] border-black flex flex-col items-start gap-3">
+          <div className="bg-[var(--color-surface)] rounded-[12px] p-6 border-[3px] border-[var(--rb-ink)] flex flex-col items-start gap-3">
             <p className="text-[14px] text-[var(--color-text-muted)]">
               No entries match these filters.
             </p>
@@ -101,7 +101,7 @@ function EntriesInner() {
             </Button>
           </div>
         ) : (
-          <div className="bg-[var(--color-surface)] rounded-[12px] p-6 border-[3px] border-black flex flex-col items-start gap-3">
+          <div className="bg-[var(--color-surface)] rounded-[12px] p-6 border-[3px] border-[var(--rb-ink)] flex flex-col items-start gap-3">
             <p className="text-[14px] text-[var(--color-text-muted)]">
               No entries yet — add your first one.
             </p>

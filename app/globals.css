@@ -27,6 +27,11 @@
   --color-info: #0000ff;
   --color-info-bg: #ffffff;
 
+  /* The two structural colours. ink = foreground (text/borders/fills),
+     paper = background. Dark mode swaps them; see the .dark block below. */
+  --rb-ink: #000000;
+  --rb-paper: #ffffff;
+
   --font-display: 'Archivo Black', system-ui, sans-serif;
   --font-sans: 'Work Sans', system-ui, sans-serif;
   --font-mono: 'Space Mono', monospace;
@@ -84,8 +89,37 @@ body {
 }
 
 ::selection {
-  background-color: #000000;
-  color: #ffffff;
+  background-color: var(--rb-ink);
+  color: var(--rb-paper);
+}
+
+/* Dark mode: swap ink/paper and the semantic surface/text tokens. Accent hues
+   are brightened so they stay legible on black. Everything else flips for free
+   because components reference these tokens. */
+.dark {
+  --rb-ink: #ffffff;
+  --rb-paper: #000000;
+
+  --color-primary: #ffffff;
+  --color-primary-strong: #ffffff;
+  --color-secondary: #ffffff;
+  --color-tertiary: #000000;
+  --color-bg: #000000;
+  --color-surface: #000000;
+  --color-surface-inset: #1a1a1a;
+  --color-surface-hover: #262626;
+  --color-text: #ffffff;
+  --color-text-muted: #b3b3b3;
+  --color-text-subtle: #808080;
+  --color-divider: #ffffff;
+  --color-success: #3ad13a;
+  --color-warning: #ffb733;
+  --color-error: #ff5c5c;
+  --color-info: #6a6aff;
+  --color-success-bg: #000000;
+  --color-warning-bg: #000000;
+  --color-error-bg: #000000;
+  --color-info-bg: #000000;
 }
 
 /* Legacy elevation hooks kept as no-ops so old class names don't break. */
@@ -135,24 +169,30 @@ body {
 /* air-datepicker — RawBlock skin. Double class beats library defaults. */
 .air-datepicker.air-datepicker {
   --adp-font-family: var(--font-mono);
-  --adp-color: #000000;
-  --adp-color-secondary: #767676;
-  --adp-accent-color: #000000;
-  --adp-color-current-date: #000000;
-  --adp-day-name-color: #000000;
-  --adp-background-color: #ffffff;
-  --adp-background-color-hover: #e8e8e8;
-  --adp-background-color-active: #000000;
-  --adp-cell-background-color-selected: #000000;
-  --adp-cell-background-color-selected-hover: #000000;
-  --adp-cell-background-color-in-range: #f0f0f0;
-  --adp-cell-background-color-in-range-hover: #e8e8e8;
+  --adp-color: var(--rb-ink);
+  --adp-color-secondary: var(--color-text-subtle);
+  --adp-accent-color: var(--rb-ink);
+  --adp-color-current-date: var(--rb-ink);
+  --adp-day-name-color: var(--rb-ink);
+  --adp-background-color: var(--rb-paper);
+  --adp-background-color-hover: var(--color-surface-hover);
+  --adp-background-color-active: var(--rb-ink);
+  --adp-cell-background-color-selected: var(--rb-ink);
+  --adp-cell-background-color-selected-hover: var(--rb-ink);
+  --adp-cell-background-color-in-range: var(--color-surface-inset);
+  --adp-cell-background-color-in-range-hover: var(--color-surface-hover);
   --adp-cell-border-radius: 0;
-  --adp-border-color: #000000;
-  --adp-border-color-inner: #000000;
+  --adp-border-color: var(--rb-ink);
+  --adp-border-color-inner: var(--rb-ink);
   --adp-border-radius: 0;
-  --adp-btn-color: #000000;
-  --adp-btn-color-hover: #000000;
-  border: 3px solid #000000;
+  --adp-btn-color: var(--rb-ink);
+  --adp-btn-color-hover: var(--rb-ink);
+  background: var(--rb-paper);
+  color: var(--rb-ink);
+  border: 3px solid var(--rb-ink);
   box-shadow: none;
+}
+/* The selected-day number sits on an ink cell, so it must use paper. */
+.dark .air-datepicker.air-datepicker {
+  --adp-cell-background-color-selected-text: var(--rb-paper);
 }

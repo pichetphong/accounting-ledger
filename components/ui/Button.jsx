@@ -2,13 +2,13 @@
 // full colour inversion; active thickens the border to 5px. No shadows.
 const VARIANT_CLASSES = {
   primary:
-    'bg-black text-white border-[3px] border-black hover:bg-white hover:text-black active:border-[5px]',
+    'bg-[var(--rb-ink)] text-[var(--rb-paper)] border-[3px] border-[var(--rb-ink)] hover:bg-[var(--rb-paper)] hover:text-[var(--rb-ink)] active:border-[5px]',
   secondary:
-    'bg-white text-black border-[3px] border-black hover:bg-black hover:text-white active:border-[5px]',
+    'bg-[var(--rb-paper)] text-[var(--rb-ink)] border-[3px] border-[var(--rb-ink)] hover:bg-[var(--rb-ink)] hover:text-[var(--rb-paper)] active:border-[5px]',
   ghost:
-    'bg-transparent text-black border-0 underline underline-offset-2 hover:text-[var(--color-info)]',
+    'bg-transparent text-[var(--rb-ink)] border-0 underline underline-offset-2 hover:text-[var(--color-info)]',
   destructive:
-    'bg-[var(--color-error)] text-white border-[3px] border-black hover:bg-black hover:text-[var(--color-error)] active:border-[5px]',
+    'bg-[var(--color-error)] text-[var(--rb-paper)] border-[3px] border-[var(--rb-ink)] hover:bg-[var(--rb-ink)] hover:text-[var(--color-error)] active:border-[5px]',
 };
 
 const SIZE_CLASSES = {

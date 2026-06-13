@@ -17,15 +17,24 @@ import Pill from '@/components/ui/Pill';
 import { useDisplayCurrency } from '@/lib/displayCurrency';
 import { getThbToUsdRate, getThbToJpyRate } from '@/lib/fx';
 import { daySpan, fromIso, toIso, startOfDay, addDays } from '@/lib/dateRange';
+import { useTheme } from '@/lib/theme';
 
 const MONTH_LABELS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
-// RawBlock: no decorative colour. Income = solid black, expense = grey so the
-// two read apart without hue; cumulative net = black.
-const INCOME_COLOR = '#000000';
-const EXPENSE_COLOR = '#9b9b9b';
-const NET_COLOR = '#000000';
-const GRID_COLOR = '#cccccc';
+// RawBlock: no decorative hue. Income = ink, expense = grey, cumulative = ink.
+// Resolved per theme because recharts needs concrete colour strings (CSS vars
+// can't reach SVG fills here).
+function chartPalette(dark) {
+  return {
+    income: dark ? '#ffffff' : '#000000',
+    expense: dark ? '#8a8a8a' : '#9b9b9b',
+    net: dark ? '#ffffff' : '#000000',
+    grid: dark ? '#333333' : '#cccccc',
+    axis: dark ? '#ffffff' : '#000000',
+    tipBg: dark ? '#ffffff' : '#000000',
+    tipFg: dark ? '#000000' : '#ffffff',
+  };
+}
 
 const COMPACT_THRESHOLD = 1_000_000;
 const VIEW_STORAGE_KEY = 'ledger-web:chart-view-v1';
@@ -108,16 +117,16 @@ function buildBuckets(entries, fromStr, toStr) {
   return { buckets, kind };
 }
 
-function ChartTooltip({ active, payload, label, currency, view }) {
+function ChartTooltip({ active, payload, label, currency, view, colors }) {
   if (!active || !payload || payload.length === 0) return null;
   const box = {
-    backgroundColor: '#000000',
-    color: '#FFFFFF',
+    backgroundColor: colors.tipBg,
+    color: colors.tipFg,
     fontFamily: 'var(--font-mono)',
     fontSize: 12,
     padding: '8px 12px',
     maxWidth: 220,
-    border: '3px solid #000000',
+    border: `3px solid ${colors.tipFg}`,
   };
   if (view === 'cumulative') {
     const cumulative = payload.find((p) => p.dataKey === 'cumulative')?.value ?? 0;
@@ -135,7 +144,7 @@ function ChartTooltip({ active, payload, label, currency, view }) {
       <div style={{ fontWeight: 600, marginBottom: 4 }}>{label}</div>
       <div>Income: {formatAmount(income)} {currency}</div>
       <div>Expense: {formatAmount(expense)} {currency}</div>
-      <div style={{ marginTop: 4, borderTop: '1px solid rgba(255,255,255,0.2)', paddingTop: 4 }}>
+      <div style={{ marginTop: 4, borderTop: `1px solid ${colors.tipFg}`, paddingTop: 4 }}>
         Net: {formatAmount(income - expense)} {currency}
       </div>
     </div>
@@ -146,6 +155,8 @@ function ChartTooltip({ active, payload, label, currency, view }) {
 // local state is the Bars/Cumulative lens, which is a view concern, not data.
 export default function MonthlyChart({ entries, from, to }) {
   const { currency } = useDisplayCurrency();
+  const { theme } = useTheme();
+  const colors = chartPalette(theme === 'dark');
   const [view, setView] = useState('bars');
 
   useEffect(() => {
@@ -191,7 +202,7 @@ export default function MonthlyChart({ entries, from, to }) {
   const hasData = chartData.some((d) => d.income > 0 || d.expense > 0);
 
   const xAxisProps = {
-    tick: { fontSize: 10, fontFamily: 'var(--font-mono)', fill: '#000000' },
+    tick: { fontSize: 10, fontFamily: 'var(--font-mono)', fill: colors.axis },
     angle: -35,
     textAnchor: 'end',
     dy: 6,
@@ -206,7 +217,7 @@ export default function MonthlyChart({ entries, from, to }) {
     <Card className="flex flex-col">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-baseline gap-2">
-          <h3 className="font-display text-[22px] uppercase text-black leading-none">
+          <h3 className="font-display text-[22px] uppercase text-[var(--rb-ink)] leading-none">
             Trend
           </h3>
           <span className="font-mono text-[12px] uppercase text-[var(--color-text-muted)]">/ {currency}</span>
@@ -218,8 +229,8 @@ export default function MonthlyChart({ entries, from, to }) {
       </div>
 
       {!hasData ? (
-        <div className="mt-4 h-[200px] md:h-[240px] flex items-center justify-center border-[3px] border-black bg-[var(--color-surface-inset)]">
-          <span className="font-mono text-[12px] uppercase tracking-[0.04em] text-black text-center px-4">
+        <div className="mt-4 h-[200px] md:h-[240px] flex items-center justify-center border-[3px] border-[var(--rb-ink)] bg-[var(--color-surface-inset)]">
+          <span className="font-mono text-[12px] uppercase tracking-[0.04em] text-[var(--rb-ink)] text-center px-4">
             No data in this range
           </span>
         </div>
@@ -230,48 +241,48 @@ export default function MonthlyChart({ entries, from, to }) {
               <AreaChart data={chartData} margin={chartMargin}>
                 <defs>
                   <linearGradient id="netFill" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor={NET_COLOR} stopOpacity={0.3} />
-                    <stop offset="100%" stopColor={NET_COLOR} stopOpacity={0} />
+                    <stop offset="0%" stopColor={colors.net} stopOpacity={0.3} />
+                    <stop offset="100%" stopColor={colors.net} stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid stroke={GRID_COLOR} vertical={false} />
-                <XAxis dataKey="label" tickLine={false} axisLine={{ stroke: '#000000' }} {...xAxisProps} />
+                <CartesianGrid stroke={colors.grid} vertical={false} />
+                <XAxis dataKey="label" tickLine={false} axisLine={{ stroke: colors.axis }} {...xAxisProps} />
                 <YAxis
-                  tick={{ fontSize: 12, fontFamily: 'var(--font-mono)', fill: '#000000' }}
+                  tick={{ fontSize: 12, fontFamily: 'var(--font-mono)', fill: colors.axis }}
                   tickLine={false}
                   axisLine={false}
                   tickFormatter={formatTick}
                   width={48}
                 />
                 <Tooltip
-                  cursor={{ stroke: 'rgba(139, 94, 60, 0.25)' }}
-                  content={<ChartTooltip currency={currency} view="cumulative" />}
+                  cursor={{ stroke: colors.grid }}
+                  content={<ChartTooltip currency={currency} view="cumulative" colors={colors} />}
                 />
                 <Area
                   type="monotone"
                   dataKey="cumulative"
-                  stroke={NET_COLOR}
+                  stroke={colors.net}
                   strokeWidth={2}
                   fill="url(#netFill)"
                 />
               </AreaChart>
             ) : (
               <BarChart data={chartData} margin={chartMargin}>
-                <CartesianGrid stroke={GRID_COLOR} vertical={false} />
-                <XAxis dataKey="label" tickLine={false} axisLine={{ stroke: '#000000' }} {...xAxisProps} />
+                <CartesianGrid stroke={colors.grid} vertical={false} />
+                <XAxis dataKey="label" tickLine={false} axisLine={{ stroke: colors.axis }} {...xAxisProps} />
                 <YAxis
-                  tick={{ fontSize: 12, fontFamily: 'var(--font-mono)', fill: '#000000' }}
+                  tick={{ fontSize: 12, fontFamily: 'var(--font-mono)', fill: colors.axis }}
                   tickLine={false}
                   axisLine={false}
                   tickFormatter={formatTick}
                   width={48}
                 />
                 <Tooltip
-                  cursor={{ fill: 'rgba(139, 94, 60, 0.08)' }}
-                  content={<ChartTooltip currency={currency} view="bars" />}
+                  cursor={{ fill: 'rgba(128, 128, 128, 0.15)' }}
+                  content={<ChartTooltip currency={currency} view="bars" colors={colors} />}
                 />
-                <Bar dataKey="income" fill={INCOME_COLOR} radius={[0, 0, 0, 0]} maxBarSize={maxBarSize} />
-                <Bar dataKey="expense" fill={EXPENSE_COLOR} radius={[0, 0, 0, 0]} maxBarSize={maxBarSize} />
+                <Bar dataKey="income" fill={colors.income} radius={[0, 0, 0, 0]} maxBarSize={maxBarSize} />
+                <Bar dataKey="expense" fill={colors.expense} radius={[0, 0, 0, 0]} maxBarSize={maxBarSize} />
               </BarChart>
             )}
           </ResponsiveContainer>

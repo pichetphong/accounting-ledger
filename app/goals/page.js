@@ -10,7 +10,7 @@ import { useEntries } from '@/lib/queries/entries';
 
 function GoalSkeleton() {
   return (
-    <div className="bg-[var(--color-surface)] rounded-[12px] p-6 border-[3px] border-black flex flex-col gap-4 opacity-50">
+    <div className="bg-[var(--color-surface)] rounded-[12px] p-6 border-[3px] border-[var(--rb-ink)] flex flex-col gap-4 opacity-50">
       <div className="h-3 w-16 bg-[var(--color-surface-inset)] rounded" />
       <div className="h-5 w-48 bg-[var(--color-surface-inset)] rounded" />
       <div className="h-7 w-40 bg-[var(--color-surface-inset)] rounded" />
@@ -28,7 +28,7 @@ function GoalsInner() {
     <div className="flex flex-col gap-6">
       <header className="flex items-start justify-between gap-3">
         <div>
-          <h1 className="font-display text-[44px] md:text-[56px] uppercase text-black leading-[0.95]">
+          <h1 className="font-display text-[44px] md:text-[56px] uppercase text-[var(--rb-ink)] leading-[0.95]">
             Goals
           </h1>
           <p className="text-[13px] text-[var(--color-text-muted)] mt-2">
@@ -43,7 +43,7 @@ function GoalsInner() {
       </header>
 
       {error && (
-        <div className="border-[3px] border-[var(--color-error)] bg-white text-[var(--color-error)] text-[13px] p-3">
+        <div className="border-[3px] border-[var(--color-error)] bg-[var(--rb-paper)] text-[var(--color-error)] text-[13px] p-3">
           {error}
         </div>
       )}

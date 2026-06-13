@@ -8,7 +8,7 @@ export default function NewGoalPage() {
     <RequireAuth>
       <div className="flex flex-col gap-6">
         <header>
-          <h1 className="font-display text-[44px] md:text-[56px] uppercase text-black leading-[0.95]">
+          <h1 className="font-display text-[44px] md:text-[56px] uppercase text-[var(--rb-ink)] leading-[0.95]">
             New goal
           </h1>
           <p className="text-[13px] text-[var(--color-text-muted)] mt-2">

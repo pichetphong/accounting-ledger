@@ -67,7 +67,7 @@ function ManageCategoriesInner() {
   return (
     <div className="flex flex-col gap-6">
       <header>
-        <h1 className="font-display text-[44px] md:text-[56px] uppercase text-black leading-[0.95]">
+        <h1 className="font-display text-[44px] md:text-[56px] uppercase text-[var(--rb-ink)] leading-[0.95]">
           Manage categories
         </h1>
         <p className="text-[13px] text-[var(--color-text-muted)] mt-2">
@@ -104,24 +104,24 @@ function ManageCategoriesInner() {
       )}
 
       {error && !feedback && (
-        <div className="border-[3px] border-[var(--color-error)] bg-white text-[var(--color-error)] text-[13px] p-3">
+        <div className="border-[3px] border-[var(--color-error)] bg-[var(--rb-paper)] text-[var(--color-error)] text-[13px] p-3">
           {error}
         </div>
       )}
 
       <section className="flex flex-col gap-3">
-        <h2 className="font-display text-[22px] uppercase text-black">
+        <h2 className="font-display text-[22px] uppercase text-[var(--rb-ink)]">
           {hydrated ? `${categories.length} categories` : 'Categories'}
         </h2>
 
         {loading && categories.length === 0 && (
-          <div className="rounded-[12px] bg-[var(--color-surface-inset)] p-4 text-[13px] text-[var(--color-text-muted)] border-[3px] border-black">
+          <div className="rounded-[12px] bg-[var(--color-surface-inset)] p-4 text-[13px] text-[var(--color-text-muted)] border-[3px] border-[var(--rb-ink)]">
             Loading...
           </div>
         )}
 
         {!loading && categories.length === 0 && (
-          <div className="rounded-[12px] bg-[var(--color-surface-inset)] p-4 text-[13px] text-[var(--color-text-muted)] border-[3px] border-black">
+          <div className="rounded-[12px] bg-[var(--color-surface-inset)] p-4 text-[13px] text-[var(--color-text-muted)] border-[3px] border-[var(--rb-ink)]">
             No categories yet. Add one above to get started.
           </div>
         )}
@@ -130,7 +130,7 @@ function ManageCategoriesInner() {
           {categories.map((name) => (
             <div
               key={name}
-              className="bg-[var(--color-surface)] rounded-[12px] p-4 border-[3px] border-black flex items-center justify-between gap-3"
+              className="bg-[var(--color-surface)] rounded-[12px] p-4 border-[3px] border-[var(--rb-ink)] flex items-center justify-between gap-3"
             >
               <span className="text-[14px] text-[var(--color-text)] truncate">
                 {name}
@@ -148,10 +148,10 @@ function ManageCategoriesInner() {
       </section>
 
       <section className="md:hidden flex flex-col gap-3 pt-4 border-t border-[var(--color-divider)]">
-        <h2 className="font-display text-[22px] uppercase text-black">
+        <h2 className="font-display text-[22px] uppercase text-[var(--rb-ink)]">
           Account
         </h2>
-        <div className="bg-[var(--color-surface)] rounded-[12px] p-4 border-[3px] border-black flex items-center justify-between gap-3">
+        <div className="bg-[var(--color-surface)] rounded-[12px] p-4 border-[3px] border-[var(--rb-ink)] flex items-center justify-between gap-3">
           <span className="text-[14px] text-[var(--color-text)]">Sign out</span>
           <Button variant="ghost" size="sm" onClick={handleSignOut}>
             Sign out

@@ -4,7 +4,7 @@ export default function Card({ className = '', elevated = false, children, ...pr
   const border = elevated ? 'border-[5px]' : 'border-[3px]';
   return (
     <div
-      className={`bg-[var(--color-surface)] ${border} border-black p-6 ${className}`}
+      className={`bg-[var(--color-surface)] ${border} border-[var(--rb-ink)] p-6 ${className}`}
       {...props}
     >
       {children}

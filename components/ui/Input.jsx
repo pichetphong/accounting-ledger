@@ -16,7 +16,7 @@ export default function Input({
       {label && (
         <label
           htmlFor={inputId}
-          className="font-display text-[14px] uppercase tracking-[0.04em] text-black mb-1"
+          className="font-display text-[14px] uppercase tracking-[0.04em] text-[var(--rb-ink)] mb-1"
         >
           {label}
         </label>
@@ -24,8 +24,8 @@ export default function Input({
       <input
         id={inputId}
         type={type}
-        className={`h-[44px] px-3 bg-[var(--color-surface-inset)] font-mono text-[15px] text-black placeholder-[var(--color-text-subtle)] border-[3px] outline-none focus:border-[5px] hover:bg-[#e8e8e8] ${
-          error ? 'border-[var(--color-error)]' : 'border-black'
+        className={`h-[44px] px-3 bg-[var(--color-surface-inset)] font-mono text-[15px] text-[var(--rb-ink)] placeholder-[var(--color-text-subtle)] border-[3px] outline-none focus:border-[5px] hover:bg-[var(--color-surface-hover)] ${
+          error ? 'border-[var(--color-error)]' : 'border-[var(--rb-ink)]'
         } ${className}`}
         {...props}
       />

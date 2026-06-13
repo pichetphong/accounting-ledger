@@ -155,7 +155,7 @@ export default function GoalCard({ goal, entries, onChanged }) {
         <span className="font-mono text-[11px] uppercase tracking-[0.08em] text-[var(--color-text-muted)]">
           Goal
         </span>
-        <h3 className="font-display text-[22px] uppercase text-black mt-1 flex items-baseline gap-2 flex-wrap">
+        <h3 className="font-display text-[22px] uppercase text-[var(--rb-ink)] mt-1 flex items-baseline gap-2 flex-wrap">
           {!isAll && (
             <span className="font-mono text-[12px] text-[var(--color-text-muted)] tracking-wide">
               {goal.currency} /
@@ -182,9 +182,9 @@ export default function GoalCard({ goal, entries, onChanged }) {
       </div>
 
       <div className="flex items-center gap-3">
-        <div className="flex-1 h-3 border-2 border-black bg-white overflow-hidden">
+        <div className="flex-1 h-3 border-2 border-[var(--rb-ink)] bg-[var(--rb-paper)] overflow-hidden">
           <div
-            className="h-full bg-black transition-[width] duration-500"
+            className="h-full bg-[var(--rb-ink)] transition-[width] duration-500"
             style={{ width: `${progressPct}%` }}
           />
         </div>
