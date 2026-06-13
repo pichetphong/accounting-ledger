@@ -16,7 +16,7 @@ export default function DashboardFilters({ range }) {
   return (
     <Card className="flex flex-col gap-3 p-4">
       <div className="flex items-center justify-between gap-2 flex-wrap">
-        <div className="flex items-center gap-1 bg-[var(--color-bg)] p-1 rounded-full shadow-inset">
+        <div className="flex items-center gap-1.5">
           {SUPPORTED_CURRENCIES.map((c) => (
             <Pill key={c} size="sm" active={currency === c} onClick={() => setCurrency(c)}>
               {c}

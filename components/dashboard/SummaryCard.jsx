@@ -1,55 +1,30 @@
 import Card from '@/components/ui/Card';
 
-const TONE = {
-  net: 'text-[var(--color-primary)]',
-  income: 'text-[var(--color-success)]',
-  expense: 'text-[var(--color-error)]',
-};
-
-// Switch to compact notation (e.g. 33.05M) at or above 1,000,000 so big
-// totals like 33M THB stay inside the card width on the 3-column grid.
 const COMPACT_THRESHOLD = 1_000_000;
 
 const SIZE_STYLES = {
-  md: {
-    card: 'p-6',
-    label: 'text-[14px]',
-    amount: 'text-[26px]',
-    currency: 'text-[12px]',
-  },
-  sm: {
-    card: 'p-4',
-    label: 'text-[14px]',
-    amount: 'text-[18px]',
-    currency: 'text-[10px]',
-  },
+  md: { card: 'p-5', label: 'text-[13px]', amount: 'text-[28px]', currency: 'text-[12px]' },
+  sm: { card: 'p-4', label: 'text-[12px]', amount: 'text-[20px]', currency: 'text-[10px]' },
 };
 
 function formatAmount(amount) {
   const value = Number.isFinite(amount) ? amount : 0;
   if (Math.abs(value) >= COMPACT_THRESHOLD) {
-    return new Intl.NumberFormat('en-US', {
-      notation: 'compact',
-      maximumFractionDigits: 2,
-    }).format(value);
+    return new Intl.NumberFormat('en-US', { notation: 'compact', maximumFractionDigits: 2 }).format(value);
   }
-  return new Intl.NumberFormat('en-US', {
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 2,
-  }).format(value);
+  return new Intl.NumberFormat('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 }).format(value);
 }
 
-// Percent change vs a prior period. `positiveIsGood` flips the colour so a
-// rising expense reads red while rising income reads green.
-function DeltaBadge({ delta, positiveIsGood, label }) {
+// RawBlock keeps polarity monochrome: percent change shows as a black arrow,
+// no green/red (see ADR 0001). `tone`/`deltaPositiveIsGood` are accepted for
+// call-site compatibility but no longer drive colour.
+function DeltaBadge({ delta, label }) {
   if (delta == null || !Number.isFinite(delta)) return null;
   const up = delta >= 0;
-  const good = up === positiveIsGood;
-  const color = good ? 'text-[var(--color-success)]' : 'text-[var(--color-error)]';
   const magnitude = Math.abs(delta);
   const shown = magnitude >= 1000 ? '999+' : magnitude.toFixed(0);
   return (
-    <span className={`text-[11px] font-sans font-medium ${color}`}>
+    <span className="text-[11px] font-mono font-bold uppercase tracking-[0.04em] text-black">
       {up ? '▲' : '▼'} {shown}% {label}
     </span>
   );
@@ -59,35 +34,31 @@ export default function SummaryCard({
   label,
   amount,
   currency = 'THB',
-  tone = 'net',
   size = 'md',
   delta = null,
-  deltaPositiveIsGood = true,
   deltaLabel = 'vs last month',
+  // eslint-disable-next-line no-unused-vars
+  tone = 'net',
+  // eslint-disable-next-line no-unused-vars
+  deltaPositiveIsGood = true,
 }) {
   const formatted = formatAmount(amount);
   const sz = SIZE_STYLES[size] ?? SIZE_STYLES.md;
 
   return (
     <Card className={`flex flex-col gap-2 overflow-hidden min-w-0 ${sz.card}`}>
-      <span
-        className={`font-display ${sz.label} text-[var(--color-text-muted)] leading-none`}
-      >
+      <span className={`font-display ${sz.label} uppercase tracking-[0.04em] text-black leading-none`}>
         {label}
       </span>
       <div className="flex items-baseline gap-2 min-w-0">
-        <span
-          className={`font-mono ${sz.amount} font-medium tabular-nums truncate ${TONE[tone] ?? TONE.net}`}
-        >
+        <span className={`font-mono ${sz.amount} font-bold tabular-nums truncate text-black`}>
           {formatted}
         </span>
-        <span
-          className={`font-mono ${sz.currency} text-[var(--color-text-subtle)] whitespace-nowrap shrink-0`}
-        >
+        <span className={`font-mono ${sz.currency} text-[var(--color-text-muted)] whitespace-nowrap shrink-0 uppercase`}>
           {currency}
         </span>
       </div>
-      <DeltaBadge delta={delta} positiveIsGood={deltaPositiveIsGood} label={deltaLabel} />
+      <DeltaBadge delta={delta} label={deltaLabel} />
     </Card>
   );
 }

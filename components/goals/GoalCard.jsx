@@ -152,13 +152,13 @@ export default function GoalCard({ goal, entries, onChanged }) {
   return (
     <Card className="flex flex-col gap-4 p-6">
       <div>
-        <span className="text-[12px] uppercase tracking-wide text-[var(--color-text-subtle)]">
+        <span className="font-mono text-[11px] uppercase tracking-[0.08em] text-[var(--color-text-muted)]">
           Goal
         </span>
-        <h3 className="font-display text-[20px] text-[var(--color-primary)] mt-1 flex items-baseline gap-2 flex-wrap">
+        <h3 className="font-display text-[22px] uppercase text-black mt-1 flex items-baseline gap-2 flex-wrap">
           {!isAll && (
-            <span className="font-sans text-[12px] text-[var(--color-text-muted)] tracking-wide">
-              {goal.currency} ·
+            <span className="font-mono text-[12px] text-[var(--color-text-muted)] tracking-wide">
+              {goal.currency} /
             </span>
           )}
           <span>{goal.name}</span>
@@ -182,9 +182,9 @@ export default function GoalCard({ goal, entries, onChanged }) {
       </div>
 
       <div className="flex items-center gap-3">
-        <div className="flex-1 h-2 rounded-full bg-[var(--color-surface-inset)] shadow-inset overflow-hidden">
+        <div className="flex-1 h-3 border-2 border-black bg-white overflow-hidden">
           <div
-            className="h-full bg-[var(--color-primary)] transition-[width] duration-500"
+            className="h-full bg-black transition-[width] duration-500"
             style={{ width: `${progressPct}%` }}
           />
         </div>

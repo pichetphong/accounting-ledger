@@ -82,7 +82,7 @@ export default function CategoryPicker({
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="w-full h-[42px] px-[14px] rounded-[12px] bg-[var(--color-surface-inset)] text-[14px] text-left shadow-inset outline-none focus:ring-[3px] focus:ring-[rgba(139,94,60,0.25)] flex items-center justify-between"
+        className="w-full h-[42px] px-[14px] rounded-[12px] bg-[var(--color-surface-inset)] text-[14px] text-left border-[3px] border-black outline-none focus:border-[5px] flex items-center justify-between"
       >
         <span className={value ? 'text-[var(--color-text)]' : 'text-[var(--color-text-subtle)]'}>
           {value || placeholder}
@@ -93,14 +93,14 @@ export default function CategoryPicker({
       </button>
 
       {open && (
-        <div className="absolute left-0 right-0 top-[calc(100%+6px)] z-10 bg-[var(--color-surface)] rounded-[12px] shadow-md p-2 max-h-[280px] overflow-hidden flex flex-col">
+        <div className="absolute left-0 right-0 top-[calc(100%+6px)] z-10 bg-[var(--color-surface)] rounded-[12px] border-[3px] border-black p-2 max-h-[280px] overflow-hidden flex flex-col">
           <input
             ref={inputRef}
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search or create..."
-            className="h-[36px] px-[12px] mb-2 rounded-[10px] bg-[var(--color-surface-inset)] text-[13px] shadow-inset outline-none focus:ring-[3px] focus:ring-[rgba(139,94,60,0.25)]"
+            className="h-[36px] px-[12px] mb-2 rounded-[10px] bg-[var(--color-surface-inset)] text-[13px] border-[3px] border-black outline-none focus:border-[5px]"
           />
 
           <div className="overflow-y-auto flex flex-col gap-[2px] pr-1">

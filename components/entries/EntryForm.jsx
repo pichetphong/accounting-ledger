@@ -172,7 +172,7 @@ export default function EntryForm({ initialValues = null, mode = 'create' }) {
         />
 
         <div className="flex flex-col">
-          <span className="text-[14px] font-medium text-[var(--color-primary)] mb-[6px]">
+          <span className="font-display text-[14px] uppercase tracking-[0.04em] text-black mb-1">
             Type
           </span>
           <div className="flex gap-2">
@@ -199,7 +199,7 @@ export default function EntryForm({ initialValues = null, mode = 'create' }) {
         />
 
         <div className="flex flex-col">
-          <span className="text-[14px] font-medium text-[var(--color-primary)] mb-[6px]">
+          <span className="font-display text-[14px] uppercase tracking-[0.04em] text-black mb-1">
             Currency
           </span>
           <div className="flex gap-2">
@@ -212,7 +212,7 @@ export default function EntryForm({ initialValues = null, mode = 'create' }) {
         </div>
 
         <div className="flex flex-col">
-          <span className="text-[14px] font-medium text-[var(--color-primary)] mb-[6px]">
+          <span className="font-display text-[14px] uppercase tracking-[0.04em] text-black mb-1">
             Category
           </span>
           <CategoryPicker
@@ -231,7 +231,7 @@ export default function EntryForm({ initialValues = null, mode = 'create' }) {
           placeholder="optional"
         />
 
-        <div className="flex items-center justify-between gap-3 rounded-[12px] bg-[var(--color-bg)] shadow-inset px-4 py-3">
+        <div className="flex items-center justify-between gap-3 rounded-[12px] bg-[var(--color-bg)] border-[3px] border-black px-4 py-3">
           <div className="flex flex-col">
             <span className="text-[11px] text-[var(--color-text-subtle)] uppercase tracking-wide">
               Locked rate

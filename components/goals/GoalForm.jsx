@@ -43,7 +43,7 @@ function CurrencySelect({ value, onChange }) {
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="w-full h-[42px] px-[14px] rounded-[12px] bg-[var(--color-surface-inset)] text-[14px] text-left shadow-inset outline-none focus:ring-[3px] focus:ring-[rgba(139,94,60,0.25)] flex items-center justify-between"
+        className="w-full h-[42px] px-[14px] rounded-[12px] bg-[var(--color-surface-inset)] text-[14px] text-left border-[3px] border-black outline-none focus:border-[5px] flex items-center justify-between"
       >
         <span className="text-[var(--color-text)]">{value}</span>
         <span className="text-[var(--color-text-muted)] text-[12px] ml-2">
@@ -51,7 +51,7 @@ function CurrencySelect({ value, onChange }) {
         </span>
       </button>
       {open && (
-        <div className="absolute left-0 right-0 top-[calc(100%+6px)] z-10 bg-[var(--color-surface)] rounded-[12px] shadow-md p-2 flex flex-col gap-[2px]">
+        <div className="absolute left-0 right-0 top-[calc(100%+6px)] z-10 bg-[var(--color-surface)] rounded-[12px] border-[3px] border-black p-2 flex flex-col gap-[2px]">
           {GOAL_CURRENCIES.map((c) => {
             const active = c === value;
             return (
@@ -172,7 +172,7 @@ export default function GoalForm({ initialValues = null, mode = 'create' }) {
       />
 
       <div className="flex flex-col">
-        <span className="text-[14px] font-medium text-[var(--color-primary)] mb-[6px]">
+        <span className="font-display text-[14px] uppercase tracking-[0.04em] text-black mb-1">
           Currency
         </span>
         <CurrencySelect value={goalCurrency} onChange={setGoalCurrency} />
@@ -183,7 +183,7 @@ export default function GoalForm({ initialValues = null, mode = 'create' }) {
       </div>
 
       <div className="flex flex-col">
-        <span className="text-[14px] font-medium text-[var(--color-primary)] mb-[6px]">
+        <span className="font-display text-[14px] uppercase tracking-[0.04em] text-black mb-1">
           Mode
         </span>
         <div className="flex gap-2 flex-wrap">

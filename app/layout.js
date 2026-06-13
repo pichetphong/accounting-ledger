@@ -1,11 +1,11 @@
-import { DM_Serif_Display, Work_Sans, IBM_Plex_Mono } from 'next/font/google';
+import { Archivo_Black, Work_Sans, Space_Mono } from 'next/font/google';
 import './globals.css';
 import Navbar from '@/components/layout/Navbar';
 import BottomNav from '@/components/layout/BottomNav';
 import AuthProvider from '@/components/auth/AuthProvider';
 import { DisplayCurrencyProvider } from '@/lib/displayCurrency';
 
-const dmSerif = DM_Serif_Display({
+const archivoBlack = Archivo_Black({
   variable: '--font-display',
   subsets: ['latin'],
   weight: ['400'],
@@ -17,10 +17,10 @@ const workSans = Work_Sans({
   weight: ['400', '500', '600'],
 });
 
-const ibmMono = IBM_Plex_Mono({
+const spaceMono = Space_Mono({
   variable: '--font-mono',
   subsets: ['latin'],
-  weight: ['400', '500'],
+  weight: ['400', '700'],
 });
 
 export const metadata = {
@@ -32,12 +32,12 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body
-        className={`${dmSerif.variable} ${workSans.variable} ${ibmMono.variable} font-sans min-h-screen flex flex-col`}
+        className={`${archivoBlack.variable} ${workSans.variable} ${spaceMono.variable} font-sans min-h-screen flex flex-col`}
       >
         <AuthProvider>
           <DisplayCurrencyProvider>
             <Navbar />
-            <main className="flex-1 w-full max-w-3xl mx-auto px-4 pb-32 pt-6 md:pb-12">
+            <main className="flex-1 w-full max-w-5xl mx-auto px-4 pb-28 pt-6 md:pb-12">
               {children}
             </main>
             <BottomNav />

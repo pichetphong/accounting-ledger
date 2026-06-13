@@ -39,18 +39,18 @@ export default function CategoryBreakdown({ entries, currency, thbToDisplay }) {
   return (
     <Card className="flex flex-col gap-4">
       <div>
-        <h3 className="font-display text-[20px] text-[var(--color-primary)] leading-none">
+        <h3 className="font-display text-[22px] uppercase text-black leading-none">
           Where it went
         </h3>
-        <p className="text-[13px] text-[var(--color-text-muted)] mt-1">
-          Expenses by category · {currency}
+        <p className="font-mono text-[12px] uppercase tracking-[0.04em] text-[var(--color-text-muted)] mt-1">
+          Expenses by category / {currency}
         </p>
       </div>
 
       {rows.length === 0 || total <= 0 ? (
-        <div className="h-[120px] flex items-center justify-center rounded-[12px] shadow-inset bg-[var(--color-bg)]">
-          <span className="text-[13px] text-[var(--color-text-muted)] text-center px-4">
-            No expenses in this range yet.
+        <div className="h-[120px] flex items-center justify-center border-[3px] border-black bg-[var(--color-surface-inset)]">
+          <span className="font-mono text-[12px] uppercase tracking-[0.04em] text-black text-center px-4">
+            No expenses in this range yet
           </span>
         </div>
       ) : (
@@ -60,17 +60,17 @@ export default function CategoryBreakdown({ entries, currency, thbToDisplay }) {
             return (
               <div key={r.category} className="flex flex-col gap-1">
                 <div className="flex items-baseline justify-between gap-2">
-                  <span className="text-[14px] font-medium text-[var(--color-text)] truncate">
+                  <span className="text-[13px] font-semibold uppercase tracking-[0.02em] text-black truncate">
                     {r.category}
                   </span>
-                  <span className="font-mono text-[13px] text-[var(--color-text-muted)] whitespace-nowrap shrink-0">
+                  <span className="font-mono text-[13px] font-bold text-black whitespace-nowrap shrink-0">
                     {formatAmount(r.amount)}
-                    <span className="text-[var(--color-text-subtle)]"> · {pct.toFixed(0)}%</span>
+                    <span className="text-[var(--color-text-muted)]"> / {pct.toFixed(0)}%</span>
                   </span>
                 </div>
-                <div className="h-2 rounded-full bg-[var(--color-surface-inset)] overflow-hidden">
+                <div className="h-3 border-2 border-black bg-white overflow-hidden">
                   <div
-                    className="h-full rounded-full bg-[var(--color-primary)]"
+                    className="h-full bg-black"
                     style={{ width: `${Math.max(pct, 2)}%` }}
                   />
                 </div>

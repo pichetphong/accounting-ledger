@@ -6,6 +6,7 @@ import Button from '@/components/ui/Button';
 import Pill from '@/components/ui/Pill';
 import DateRangePicker from '@/components/ui/DateRangePicker';
 import EntryRow from '@/components/entries/EntryRow';
+import EntryTable from '@/components/entries/EntryTable';
 import RequireAuth from '@/components/auth/RequireAuth';
 import { useEntries } from '@/lib/queries/entries';
 
@@ -21,7 +22,7 @@ function SkeletonRows() {
       {[0, 1, 2].map((i) => (
         <div
           key={i}
-          className="bg-[var(--color-surface)] rounded-[12px] p-4 shadow-raised-sm flex items-center justify-between gap-3 opacity-50"
+          className="bg-[var(--color-surface)] rounded-[12px] p-4 border-[3px] border-black flex items-center justify-between gap-3 opacity-50"
         >
           <div className="flex flex-col gap-2 min-w-0 flex-1">
             <div className="h-3 w-24 bg-[var(--color-surface-inset)] rounded" />
@@ -46,6 +47,9 @@ function EntriesInner() {
 
   const filtersActive = Boolean(range.from && range.to) || type !== 'all';
 
+  const incomeRows = useMemo(() => sorted.filter((e) => e.type === 'income'), [sorted]);
+  const expenseRows = useMemo(() => sorted.filter((e) => e.type === 'expense'), [sorted]);
+
   const clearFilters = () => {
     setRange({ from: null, to: null });
     setType('all');
@@ -53,13 +57,13 @@ function EntriesInner() {
 
   return (
     <div className="flex flex-col gap-6">
-      <header className="flex items-center justify-between">
+      <header className="flex items-end justify-between border-b-[5px] border-black pb-3">
         <div>
-          <h1 className="font-display text-[34px] text-[var(--color-primary)] leading-none">
+          <h1 className="font-display text-[44px] md:text-[56px] uppercase text-black leading-[0.95]">
             Entries
           </h1>
-          <p className="text-[13px] text-[var(--color-text-muted)] mt-2">
-            {loading ? 'Loading...' : `${sorted.length} entries, newest first.`}
+          <p className="font-mono text-[12px] uppercase tracking-[0.08em] text-black mt-2">
+            {loading ? 'Loading...' : `${sorted.length} entries / newest first`}
           </p>
         </div>
         <Link href="/entries/new">
@@ -81,14 +85,14 @@ function EntriesInner() {
       </div>
 
       {error ? (
-        <div className="bg-[var(--color-surface)] rounded-[12px] p-4 shadow-raised">
+        <div className="bg-[var(--color-surface)] rounded-[12px] p-4 border-[3px] border-black">
           <p className="text-[13px] text-[var(--color-error)]">{error}</p>
         </div>
       ) : loading ? (
         <SkeletonRows />
       ) : sorted.length === 0 ? (
         filtersActive ? (
-          <div className="bg-[var(--color-surface)] rounded-[12px] p-6 shadow-raised flex flex-col items-start gap-3">
+          <div className="bg-[var(--color-surface)] rounded-[12px] p-6 border-[3px] border-black flex flex-col items-start gap-3">
             <p className="text-[14px] text-[var(--color-text-muted)]">
               No entries match these filters.
             </p>
@@ -97,7 +101,7 @@ function EntriesInner() {
             </Button>
           </div>
         ) : (
-          <div className="bg-[var(--color-surface)] rounded-[12px] p-6 shadow-raised flex flex-col items-start gap-3">
+          <div className="bg-[var(--color-surface)] rounded-[12px] p-6 border-[3px] border-black flex flex-col items-start gap-3">
             <p className="text-[14px] text-[var(--color-text-muted)]">
               No entries yet — add your first one.
             </p>
@@ -107,11 +111,25 @@ function EntriesInner() {
           </div>
         )
       ) : (
-        <div className="flex flex-col gap-3">
-          {sorted.map((entry) => (
-            <EntryRow key={entry.id} entry={entry} />
-          ))}
-        </div>
+        <>
+          {/* Desktop: income/expense split side by side (single table when the
+              type filter narrows to one side). Mobile: card list. */}
+          <div className="hidden md:block">
+            {type === 'all' ? (
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 items-start">
+                <EntryTable title="Income" entries={incomeRows} compact />
+                <EntryTable title="Expense" entries={expenseRows} compact />
+              </div>
+            ) : (
+              <EntryTable title={type === 'income' ? 'Income' : 'Expense'} entries={sorted} />
+            )}
+          </div>
+          <div className="md:hidden flex flex-col gap-3">
+            {sorted.map((entry) => (
+              <EntryRow key={entry.id} entry={entry} />
+            ))}
+          </div>
+        </>
       )}
     </div>
   );

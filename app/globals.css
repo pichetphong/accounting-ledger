@@ -1,54 +1,73 @@
 @import 'tailwindcss';
 
+/* RawBlock design system — see docs/adr/0001-rawblock-design-language.md.
+   Brutalist: pure black on white, 0px radius everywhere, no shadows, hierarchy
+   from border weight + scale. Existing semantic var names are kept and simply
+   repointed at RawBlock values so the colour flip happens app-wide. */
 @theme {
-  --color-primary: #8b5e3c;
-  --color-primary-strong: #6b4226;
-  --color-secondary: #c4956a;
-  --color-tertiary: #fdf6ec;
-  --color-bg: #fdf6ec;
+  /* Black is the "primary"/structural colour. */
+  --color-primary: #000000;
+  --color-primary-strong: #000000;
+  --color-secondary: #000000;
+  --color-tertiary: #ffffff;
+  --color-bg: #ffffff;
   --color-surface: #ffffff;
-  --color-surface-inset: #f0e6d6;
-  --color-surface-hover: #faf0e1;
-  --color-text: #3e2723;
-  --color-text-muted: #6d4c41;
-  --color-text-subtle: #9b8579;
-  --color-divider: #e8ddd0;
-  --color-success: #059669;
-  --color-success-bg: #dcfce7;
-  --color-warning: #d97706;
-  --color-warning-bg: #fef3c7;
-  --color-error: #ef4444;
-  --color-error-bg: #fee2e2;
-  --color-info: #6366f1;
-  --color-info-bg: #ede9fe;
+  --color-surface-inset: #f0f0f0;
+  --color-surface-hover: #e8e8e8;
+  --color-text: #000000;
+  --color-text-muted: #444444;
+  --color-text-subtle: #767676;
+  --color-divider: #000000;
+  --color-success: #008000;
+  --color-success-bg: #ffffff;
+  --color-warning: #ffa500;
+  --color-warning-bg: #ffffff;
+  --color-error: #ff0000;
+  --color-error-bg: #ffffff;
+  --color-info: #0000ff;
+  --color-info-bg: #ffffff;
 
-  --font-display: 'DM Serif Display', serif;
+  --font-display: 'Archivo Black', system-ui, sans-serif;
   --font-sans: 'Work Sans', system-ui, sans-serif;
-  --font-mono: 'IBM Plex Mono', monospace;
+  --font-mono: 'Space Mono', monospace;
 
-  --radius-sm: 6px;
-  --radius-md: 12px;
-  --radius-lg: 16px;
-  --radius-full: 9999px;
+  /* RawBlock: nothing is rounded. */
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --radius-full: 0px;
 
-  /* Neumorphic shadows are intentionally light: alpha-blended so cards feel
-     present on the cream background without stacking into a heavy "shadow wall"
-     when many cards render in a list. Inset stays solid because it signals
-     "you can type here" on input fields. */
-  --shadow-raised: 3px 3px 10px rgba(213, 201, 184, 0.55), -3px -3px 10px rgba(255, 255, 255, 0.55);
-  --shadow-inset: inset 4px 4px 8px #d5c9b8, inset -4px -4px 8px #ffffff;
-  --shadow-raised-sm: 2px 2px 6px rgba(213, 201, 184, 0.5), -2px -2px 6px rgba(255, 255, 255, 0.5);
-  --shadow-focus: 0 0 0 3px rgba(139, 94, 60, 0.25);
+  /* Border weights replace elevation. */
+  --border-thin: 1px;
+  --border-thick: 3px;
+  --border-heavy: 5px;
 
-  /* Override Tailwind defaults so popover/modal surfaces (shadow-md, shadow-lg)
-     also feel lighter on the cream background. Offset/blur unchanged — they
-     need separation from the backdrop — only alpha is reduced ~30%. */
-  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.07), 0 2px 4px -2px rgb(0 0 0 / 0.07);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.07), 0 4px 6px -4px rgb(0 0 0 / 0.07);
+  /* No shadows anywhere — neutralise every legacy shadow token so existing
+     .shadow-* utilities become no-ops without touching each component. */
+  --shadow-raised: none;
+  --shadow-inset: none;
+  --shadow-raised-sm: none;
+  --shadow-focus: none;
+  --shadow-md: none;
+  --shadow-lg: none;
 }
 
 * {
   box-sizing: border-box;
+}
+
+/* "Every single element uses 0px border radius. No exceptions" — enforce it
+   globally so stray rounded-* utilities can't sneak curves back in. The radio
+   dot is the documented exception and opts back in via .rb-round. */
+*,
+*::before,
+*::after {
+  border-radius: 0 !important;
+}
+
+.rb-round,
+.rb-round * {
+  border-radius: 9999px !important;
 }
 
 html {
@@ -65,25 +84,19 @@ body {
 }
 
 ::selection {
-  background-color: rgba(139, 94, 60, 0.25);
-  color: var(--color-text);
+  background-color: #000000;
+  color: #ffffff;
 }
 
-/* Neumorphism only renders correctly on the cream background. */
-.shadow-raised {
-  box-shadow: var(--shadow-raised);
-}
-
-.shadow-raised-sm {
-  box-shadow: var(--shadow-raised-sm);
-}
-
+/* Legacy elevation hooks kept as no-ops so old class names don't break. */
+.shadow-raised,
+.shadow-raised-sm,
 .shadow-inset {
-  box-shadow: var(--shadow-inset);
+  box-shadow: none;
 }
 
 .shadow-raised-press:active {
-  box-shadow: var(--shadow-inset);
+  box-shadow: none;
 }
 
 .font-display {
@@ -100,16 +113,16 @@ body {
 }
 
 @keyframes confirm-dialog-surface-in {
-  from { opacity: 0; transform: scale(0.96); }
-  to { opacity: 1; transform: scale(1); }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 .confirm-dialog-backdrop {
-  animation: confirm-dialog-backdrop-in 160ms ease-out;
+  animation: confirm-dialog-backdrop-in 120ms linear;
 }
 
 .confirm-dialog-surface {
-  animation: confirm-dialog-surface-in 180ms ease-out;
+  animation: confirm-dialog-surface-in 120ms linear;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -119,27 +132,27 @@ body {
   }
 }
 
-/* air-datepicker theme. Double class raises specificity so these win over the
-   library defaults regardless of stylesheet load order. */
+/* air-datepicker — RawBlock skin. Double class beats library defaults. */
 .air-datepicker.air-datepicker {
-  --adp-font-family: var(--font-sans);
-  --adp-color: var(--color-text);
-  --adp-color-secondary: var(--color-text-subtle);
-  --adp-accent-color: var(--color-primary);
-  --adp-color-current-date: var(--color-primary);
-  --adp-day-name-color: var(--color-secondary);
-  --adp-background-color: var(--color-surface);
-  --adp-background-color-hover: var(--color-surface-hover);
-  --adp-background-color-active: var(--color-surface-inset);
-  --adp-cell-background-color-selected: var(--color-primary);
-  --adp-cell-background-color-selected-hover: var(--color-primary-strong);
-  --adp-cell-background-color-in-range: var(--color-surface-inset);
-  --adp-cell-background-color-in-range-hover: var(--color-surface-hover);
-  --adp-cell-border-radius: 8px;
-  --adp-border-color: var(--color-divider);
-  --adp-border-color-inner: var(--color-divider);
-  --adp-border-radius: 12px;
-  --adp-btn-color: var(--color-primary);
-  --adp-btn-color-hover: var(--color-primary-strong);
-  box-shadow: var(--shadow-lg);
+  --adp-font-family: var(--font-mono);
+  --adp-color: #000000;
+  --adp-color-secondary: #767676;
+  --adp-accent-color: #000000;
+  --adp-color-current-date: #000000;
+  --adp-day-name-color: #000000;
+  --adp-background-color: #ffffff;
+  --adp-background-color-hover: #e8e8e8;
+  --adp-background-color-active: #000000;
+  --adp-cell-background-color-selected: #000000;
+  --adp-cell-background-color-selected-hover: #000000;
+  --adp-cell-background-color-in-range: #f0f0f0;
+  --adp-cell-background-color-in-range-hover: #e8e8e8;
+  --adp-cell-border-radius: 0;
+  --adp-border-color: #000000;
+  --adp-border-color-inner: #000000;
+  --adp-border-radius: 0;
+  --adp-btn-color: #000000;
+  --adp-btn-color-hover: #000000;
+  border: 3px solid #000000;
+  box-shadow: none;
 }

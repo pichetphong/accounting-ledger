@@ -24,7 +24,7 @@ export default function AirDatepicker({
   onChangeRef.current = onChange;
 
   useEffect(() => {
-    const dp = new AirDatepickerLib(inputRef.current, {
+    const config = {
       locale: localeEn,
       dateFormat: 'MMM d, yyyy',
       autoClose: true,
@@ -37,7 +37,14 @@ export default function AirDatepicker({
         const arr = Array.isArray(date) ? date : date ? [date] : [];
         onChangeRef.current?.(arr.map(toIso));
       },
-    });
+    };
+    // On phones anchor the popover below-left so it grows rightward into the
+    // viewport instead of overflowing the right edge (the cause of the cut-off
+    // calendar). Desktop keeps whatever position the caller asked for.
+    if (typeof window !== 'undefined' && window.innerWidth < 768) {
+      config.position = 'bottom left';
+    }
+    const dp = new AirDatepickerLib(inputRef.current, config);
     dpRef.current = dp;
     return () => dp.destroy();
     // Instantiate once; options are static for our call sites.

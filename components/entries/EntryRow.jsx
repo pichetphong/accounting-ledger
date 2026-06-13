@@ -1,10 +1,10 @@
 import Link from 'next/link';
 import CurrencyChip from '@/components/ui/CurrencyChip';
 
+// RawBlock row: bordered block, sign-only polarity (+/-) in black, no colour.
+// Hover inverts the whole row. Used as the mobile/list view of entries.
 export default function EntryRow({ entry }) {
-  const isIncome = entry.type === 'income';
-  const sign = isIncome ? '+' : '-';
-  const tone = isIncome ? 'text-[var(--color-success)]' : 'text-[var(--color-error)]';
+  const sign = entry.type === 'income' ? '+' : '-';
   const formatted = new Intl.NumberFormat('en-US', {
     minimumFractionDigits: 0,
     maximumFractionDigits: 2,
@@ -13,23 +13,21 @@ export default function EntryRow({ entry }) {
   return (
     <Link
       href={`/entries/${entry.id}/edit`}
-      className="bg-[var(--color-surface)] rounded-[12px] p-4 shadow-raised-sm flex items-center justify-between gap-3 transition-colors hover:bg-[var(--color-surface-hover)] focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-[rgba(139,94,60,0.25)]"
+      className="group bg-white border-[3px] border-black p-4 flex items-center justify-between gap-3 transition-colors hover:bg-black hover:text-white"
     >
       <div className="flex flex-col min-w-0">
-        <div className="flex items-center gap-2 text-[12px] text-[var(--color-text-subtle)] font-mono">
+        <div className="flex items-center gap-2 text-[11px] font-mono uppercase tracking-[0.04em]">
           <span>{entry.date}</span>
-          <CurrencyChip currency={entry.currency} />
+          <CurrencyChip currency={entry.currency} className="group-hover:invert" />
         </div>
-        <span className="text-[14px] font-medium text-[var(--color-text)] mt-1 truncate">
+        <span className="text-[15px] font-semibold mt-1 truncate uppercase tracking-[0.02em]">
           {entry.category}
         </span>
         {entry.note && (
-          <span className="text-[12px] text-[var(--color-text-muted)] truncate">
-            {entry.note}
-          </span>
+          <span className="text-[12px] truncate">{entry.note}</span>
         )}
       </div>
-      <div className={`font-mono text-[16px] font-medium ${tone} whitespace-nowrap`}>
+      <div className="font-mono text-[16px] font-bold whitespace-nowrap tabular-nums">
         {sign}
         {formatted}
       </div>

@@ -14,7 +14,7 @@ export default function DatePicker({ label, name, value, onChange, min, required
   return (
     <div className="flex flex-col">
       {label && (
-        <label htmlFor={name} className="text-[14px] font-medium text-[var(--color-primary)] mb-[6px]">
+        <label htmlFor={name} className="font-display text-[14px] uppercase tracking-[0.04em] text-black mb-1">
           {label}
         </label>
       )}
@@ -28,7 +28,7 @@ export default function DatePicker({ label, name, value, onChange, min, required
           required,
           placeholder: 'Select date',
           className:
-            'h-[42px] px-[14px] rounded-[12px] bg-[var(--color-surface-inset)] text-[14px] text-[var(--color-text)] placeholder-[var(--color-text-subtle)] shadow-inset outline-none cursor-pointer focus:ring-[3px] focus:ring-[rgba(139,94,60,0.25)]',
+            'h-[44px] px-3 bg-[var(--color-surface-inset)] font-mono text-[15px] text-black placeholder-[var(--color-text-subtle)] border-[3px] border-black outline-none cursor-pointer focus:border-[5px] hover:bg-[#e8e8e8]',
         }}
       />
     </div>

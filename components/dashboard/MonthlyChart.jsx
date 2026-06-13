@@ -20,9 +20,12 @@ import { daySpan, fromIso, toIso, startOfDay, addDays } from '@/lib/dateRange';
 
 const MONTH_LABELS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
-const INCOME_COLOR = '#059669';
-const EXPENSE_COLOR = '#EF4444';
-const NET_COLOR = '#8B5E3C';
+// RawBlock: no decorative colour. Income = solid black, expense = grey so the
+// two read apart without hue; cumulative net = black.
+const INCOME_COLOR = '#000000';
+const EXPENSE_COLOR = '#9b9b9b';
+const NET_COLOR = '#000000';
+const GRID_COLOR = '#cccccc';
 
 const COMPACT_THRESHOLD = 1_000_000;
 const VIEW_STORAGE_KEY = 'ledger-web:chart-view-v1';
@@ -108,14 +111,13 @@ function buildBuckets(entries, fromStr, toStr) {
 function ChartTooltip({ active, payload, label, currency, view }) {
   if (!active || !payload || payload.length === 0) return null;
   const box = {
-    backgroundColor: '#3E2723',
+    backgroundColor: '#000000',
     color: '#FFFFFF',
-    fontFamily: 'var(--font-sans)',
+    fontFamily: 'var(--font-mono)',
     fontSize: 12,
     padding: '8px 12px',
-    borderRadius: 8,
     maxWidth: 220,
-    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+    border: '3px solid #000000',
   };
   if (view === 'cumulative') {
     const cumulative = payload.find((p) => p.dataKey === 'cumulative')?.value ?? 0;
@@ -189,7 +191,7 @@ export default function MonthlyChart({ entries, from, to }) {
   const hasData = chartData.some((d) => d.income > 0 || d.expense > 0);
 
   const xAxisProps = {
-    tick: { fontSize: 10, fontFamily: 'var(--font-sans)', fill: '#6D4C41' },
+    tick: { fontSize: 10, fontFamily: 'var(--font-mono)', fill: '#000000' },
     angle: -35,
     textAnchor: 'end',
     dy: 6,
@@ -204,10 +206,10 @@ export default function MonthlyChart({ entries, from, to }) {
     <Card className="flex flex-col">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-baseline gap-2">
-          <h3 className="font-display text-[20px] text-[var(--color-primary)] leading-none">
+          <h3 className="font-display text-[22px] uppercase text-black leading-none">
             Trend
           </h3>
-          <span className="text-[12px] font-sans text-[var(--color-text-muted)]">· {currency}</span>
+          <span className="font-mono text-[12px] uppercase text-[var(--color-text-muted)]">/ {currency}</span>
         </div>
         <div className="flex gap-1.5">
           <Pill size="sm" active={view === 'bars'} onClick={() => handleView('bars')}>Bars</Pill>
@@ -216,9 +218,9 @@ export default function MonthlyChart({ entries, from, to }) {
       </div>
 
       {!hasData ? (
-        <div className="mt-4 h-[200px] md:h-[240px] flex items-center justify-center rounded-[12px] shadow-inset bg-[var(--color-bg)]">
-          <span className="text-[13px] text-[var(--color-text-muted)] font-sans text-center px-4">
-            No data in this range — add an entry to see your trend.
+        <div className="mt-4 h-[200px] md:h-[240px] flex items-center justify-center border-[3px] border-black bg-[var(--color-surface-inset)]">
+          <span className="font-mono text-[12px] uppercase tracking-[0.04em] text-black text-center px-4">
+            No data in this range
           </span>
         </div>
       ) : (
@@ -232,10 +234,10 @@ export default function MonthlyChart({ entries, from, to }) {
                     <stop offset="100%" stopColor={NET_COLOR} stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid stroke="#E8DDD0" vertical={false} />
-                <XAxis dataKey="label" tickLine={false} axisLine={{ stroke: '#E8DDD0' }} {...xAxisProps} />
+                <CartesianGrid stroke={GRID_COLOR} vertical={false} />
+                <XAxis dataKey="label" tickLine={false} axisLine={{ stroke: '#000000' }} {...xAxisProps} />
                 <YAxis
-                  tick={{ fontSize: 12, fontFamily: 'var(--font-sans)', fill: '#6D4C41' }}
+                  tick={{ fontSize: 12, fontFamily: 'var(--font-mono)', fill: '#000000' }}
                   tickLine={false}
                   axisLine={false}
                   tickFormatter={formatTick}
@@ -255,10 +257,10 @@ export default function MonthlyChart({ entries, from, to }) {
               </AreaChart>
             ) : (
               <BarChart data={chartData} margin={chartMargin}>
-                <CartesianGrid stroke="#E8DDD0" vertical={false} />
-                <XAxis dataKey="label" tickLine={false} axisLine={{ stroke: '#E8DDD0' }} {...xAxisProps} />
+                <CartesianGrid stroke={GRID_COLOR} vertical={false} />
+                <XAxis dataKey="label" tickLine={false} axisLine={{ stroke: '#000000' }} {...xAxisProps} />
                 <YAxis
-                  tick={{ fontSize: 12, fontFamily: 'var(--font-sans)', fill: '#6D4C41' }}
+                  tick={{ fontSize: 12, fontFamily: 'var(--font-mono)', fill: '#000000' }}
                   tickLine={false}
                   axisLine={false}
                   tickFormatter={formatTick}
@@ -268,8 +270,8 @@ export default function MonthlyChart({ entries, from, to }) {
                   cursor={{ fill: 'rgba(139, 94, 60, 0.08)' }}
                   content={<ChartTooltip currency={currency} view="bars" />}
                 />
-                <Bar dataKey="income" fill={INCOME_COLOR} radius={[4, 4, 0, 0]} maxBarSize={maxBarSize} />
-                <Bar dataKey="expense" fill={EXPENSE_COLOR} radius={[4, 4, 0, 0]} maxBarSize={maxBarSize} />
+                <Bar dataKey="income" fill={INCOME_COLOR} radius={[0, 0, 0, 0]} maxBarSize={maxBarSize} />
+                <Bar dataKey="expense" fill={EXPENSE_COLOR} radius={[0, 0, 0, 0]} maxBarSize={maxBarSize} />
               </BarChart>
             )}
           </ResponsiveContainer>

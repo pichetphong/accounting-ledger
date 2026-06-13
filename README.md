@@ -11,7 +11,7 @@ Personal expense tracker that replaces the Excel-based ledger. Single-user, thre
 
 ## Design
 
-CafeBlend design system — see `/references/cafeblend-DESIGN.md` in the DG-OS office. Neumorphic raised/inset shadows on a warm cream background, DM Serif Display for headlines, Work Sans for body, IBM Plex Mono for numbers.
+RawBlock — a brutalist black-on-white system (see `docs/adr/0001-rawblock-design-language.md`). Thick black borders and scale contrast instead of shadows, 0px radius everywhere, Archivo Black headlines, Work Sans body, Space Mono numbers. Income/expense are shown with `+` / `-` (no green/red). On medium-large screens the Entries page is a spreadsheet-style table; mobile falls back to cards.
 
 ## Running locally
 

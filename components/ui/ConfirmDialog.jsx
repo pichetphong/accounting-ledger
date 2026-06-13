@@ -111,9 +111,7 @@ export default function ConfirmDialog({
       onMouseDown={handleBackdropMouseDown}
       className="confirm-dialog-backdrop fixed inset-0 z-50 flex items-center justify-center px-4"
       style={{
-        backgroundColor: 'rgba(62, 39, 35, 0.45)',
-        backdropFilter: 'blur(2px)',
-        WebkitBackdropFilter: 'blur(2px)',
+        backgroundColor: 'rgba(0, 0, 0, 0.55)',
       }}
     >
       <div
@@ -122,14 +120,11 @@ export default function ConfirmDialog({
         aria-modal="true"
         aria-labelledby={titleId}
         aria-describedby={description ? descriptionId : undefined}
-        className="confirm-dialog-surface w-full max-w-[420px] rounded-[16px] bg-white p-6"
-        style={{
-          boxShadow: '0 8px 24px rgba(0, 0, 0, 0.08)',
-        }}
+        className="confirm-dialog-surface w-full max-w-[420px] border-[5px] border-black bg-white p-6"
       >
         <h3
           id={titleId}
-          className="font-display text-[20px] leading-[28px] text-[var(--color-primary)]"
+          className="font-display text-[22px] uppercase leading-[1.05] text-black"
         >
           {title}
         </h3>

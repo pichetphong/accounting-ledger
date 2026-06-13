@@ -21,12 +21,6 @@ export default function DateRangePicker({ from, to, onChange, className = '' }) 
 
   return (
     <div className={`relative ${className}`}>
-      <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-current opacity-80">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-          <rect x="3" y="4" width="18" height="18" rx="2" />
-          <path d="M16 2v4M8 2v4M3 10h18" />
-        </svg>
-      </span>
       <AirDatepicker
         range
         selected={selected}
@@ -34,10 +28,10 @@ export default function DateRangePicker({ from, to, onChange, className = '' }) 
         options={RANGE_OPTIONS}
         inputProps={{
           placeholder: 'Pick dates',
-          className: `h-8 w-[210px] max-w-full pl-9 pr-3 rounded-full text-[12px] font-medium cursor-pointer outline-none transition-colors placeholder:font-medium ${
+          className: `h-8 w-[200px] max-w-full px-3 border-[3px] border-black text-[12px] font-mono uppercase tracking-[0.04em] cursor-pointer outline-none transition-colors ${
             hasRange
-              ? 'bg-[var(--color-primary)] text-white placeholder:text-white/70 shadow-raised-sm'
-              : 'bg-[var(--color-surface-hover)] text-[var(--color-primary)] placeholder:text-[var(--color-primary)] hover:bg-[#f5e6cf]'
+              ? 'bg-black text-white placeholder:text-white/70'
+              : 'bg-white text-black placeholder:text-black hover:bg-black hover:text-white hover:placeholder:text-white'
           }`,
         }}
       />

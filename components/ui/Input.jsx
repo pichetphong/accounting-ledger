@@ -1,3 +1,5 @@
+// RawBlock input: grey sunken fill, 3px black border, Space Mono, square.
+// Focus thickens the border to 5px (no glow). Label is uppercase Archivo Black.
 export default function Input({
   label,
   helperText,
@@ -14,7 +16,7 @@ export default function Input({
       {label && (
         <label
           htmlFor={inputId}
-          className="text-[14px] font-medium text-[var(--color-primary)] mb-[6px]"
+          className="font-display text-[14px] uppercase tracking-[0.04em] text-black mb-1"
         >
           {label}
         </label>
@@ -22,12 +24,14 @@ export default function Input({
       <input
         id={inputId}
         type={type}
-        className={`h-[42px] px-[14px] rounded-[12px] bg-[var(--color-surface-inset)] text-[14px] text-[var(--color-text)] placeholder-[var(--color-text-subtle)] shadow-inset outline-none focus:ring-[3px] focus:ring-[rgba(139,94,60,0.25)] ${error ? 'border border-[var(--color-error)] bg-[#fef2f2] shadow-none' : ''} ${className}`}
+        className={`h-[44px] px-3 bg-[var(--color-surface-inset)] font-mono text-[15px] text-black placeholder-[var(--color-text-subtle)] border-[3px] outline-none focus:border-[5px] hover:bg-[#e8e8e8] ${
+          error ? 'border-[var(--color-error)]' : 'border-black'
+        } ${className}`}
         {...props}
       />
       {(helperText || error) && (
         <span
-          className={`text-[12px] mt-1 ${error ? 'text-[var(--color-error)]' : 'text-[var(--color-text-subtle)]'}`}
+          className={`text-[12px] mt-1 ${error ? 'text-[var(--color-error)]' : 'text-[var(--color-text-muted)]'}`}
         >
           {error || helperText}
         </span>
